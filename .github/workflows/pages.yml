@@ -30,7 +30,19 @@ jobs:
           node-version: '14'
           cache: 'npm'
       - run: npm ci
-      - run: npm run build:release
+      - name: Build
+        shell: bash
+        run: |
+          set +e
+          npm run build:release 2>&1 | tee build.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            # Surface the real webpack errors as a readable annotation (not just the stack trace)
+            grep -nE -B1 -A6 'ERROR in|Module not found|Can.t resolve|Module build failed|SyntaxError|ReferenceError|error  in|Failed to compile|JavaScript heap|ENOSPC|ENOMEM' build.log | head -c 3500 | sed ':a;N;$!ba;s/\n/%0A/g' > errs.txt
+            echo "::error title=Build errors::$(cat errs.txt)"
+            echo "--- tail of build.log ---"; tail -n 60 build.log
+          fi
+          exit $code
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
