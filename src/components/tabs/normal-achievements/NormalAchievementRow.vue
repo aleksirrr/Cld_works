@@ -19,8 +19,7 @@ export default {
   data() {
     return {
       isCompleted: false,
-      isHidden: false,
-      styleOfRowBg: undefined
+      isHidden: false
     };
   },
   computed: {
@@ -29,14 +28,7 @@ export default {
         "l-achievement-grid__row": true,
         "c-achievement-grid__row--completed": this.isCompleted
       };
-    },
-    isPreRealityAchievement() {
-      return PlayerProgress.realityUnlocked() && this.row <= 13;
-    },
-  },
-  created() {
-    this.on$(GAME_EVENT.ACHIEVEMENT_UNLOCKED, () => this.setStyleOfRowBg());
-    this.setStyleOfRowBg()
+    }
   },
   methods: {
     update() {
@@ -55,7 +47,6 @@ export default {
   <div
     v-if="!isHidden"
     :class="classObject"
-    :style="styleOfRowBg"
   >
     <normal-achievement
       v-for="(achievement, i) in row"

@@ -51,7 +51,7 @@ jobs:
       - name: Install playwright-core (uses the Chrome already on the runner)
         run: |
           mkdir -p /tmp/probe && cd /tmp/probe && npm init -y >/dev/null
-          npm i playwright-core@1.48.2 --no-audit --no-fund
+          npm i playwright-core@1.48.2 source-map@0.7.4 --no-audit --no-fund
       - name: Load the built game in Chrome
         working-directory: ${{ env.TARGET }}
         env:

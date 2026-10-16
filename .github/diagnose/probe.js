@@ -16,6 +16,29 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(f).pipe(res);
 });
 const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
+let SourceMapConsumer = null; try { SourceMapConsumer = require("source-map").SourceMapConsumer; } catch (e) { /* optional */ }
+async function symbolicate(logs) {
+  if (!SourceMapConsumer) return ["(source-map not installed)"];
+  const cache = new Map(), seen = new Set(), out = [];
+  for (const l of logs) {
+    const kind = l.split("\n")[0].slice(0, 110);
+    if (seen.has(kind) || !/Error/.test(kind)) continue;
+    const frames = [...l.matchAll(/js\/(app\.[0-9a-f]+\.js):(\d+):(\d+)/g)].slice(0, 4);
+    if (!frames.length) continue; seen.add(kind);
+    const mapped = [];
+    for (const [, file, ln, col] of frames) {
+      let c = cache.get(file);
+      if (c === undefined) { const mp = path.join(dist, "js", file + ".map"); c = fs.existsSync(mp) ? await new SourceMapConsumer(JSON.parse(fs.readFileSync(mp, "utf8"))) : null; cache.set(file, c); }
+      if (!c) continue;
+      const o = c.originalPositionFor({ line: +ln, column: +col });
+      if (o && o.source) { let sl = ""; try { sl = (c.sourceContentFor(o.source, true) || "").split("\n")[o.line - 1].trim().slice(0, 150); } catch (e) {}
+        mapped.push(`${String(o.source).replace(/^webpack:\/\/[^/]*\//, "")}:${o.line} :: ${sl}`); }
+    }
+    out.push(`WHERE[${kind}]` + nl_ + "  " + mapped.join(nl_ + "  "));
+  }
+  return out;
+}
+const nl_ = "\n";
 (async () => {
   await new Promise((r) => server.listen(8080, r));
   const browser = await chromium.launch({ channel: "chrome", args: ["--no-sandbox", "--autoplay-policy=no-user-gesture-required"] });
@@ -65,10 +88,11 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
       } catch (e) { logs.push("[snippet failed] " + e.message); }
     }
     await page.screenshot({ path: `shot-${name}.png` }).catch(() => {});
+    const where = await symbolicate(logs);
     const groups = new Map();
     for (const l of logs) { const k = l.split("\n").slice(0, 2).join(" | ").replace(/app\.[0-9a-f]+\.js:\d+:\d+|chunk-vendors\.[0-9a-f]+\.js:\d+:\d+/g, "BUNDLE").replace(/[?&]_p=\d+.*/, "").slice(0, 220); groups.set(k, (groups.get(k) || 0) + 1); }
     const grouped = [...groups].sort((a, b) => b[1] - a[1]).slice(0, 18).map(([k, n]) => `${n}x ${k}`);
-    const text = `STATE ${JSON.stringify(state)}\nDISTINCT LOG KINDS (${groups.size}), total ${logs.length}:\n` + grouped.join("\n");
+    const text = `STATE ${JSON.stringify(state)}\nDISTINCT LOG KINDS (${groups.size}), total ${logs.length}:\n` + grouped.join("\n") + "\n" + where.join("\n");
     summary += `## ${name}\n\`\`\`\n${text}\n\`\`\`\n`;
     console.log(`::error title=probe ${process.env.PROBE_NAME || ""} ${name}::${esc(text.slice(0, 6000))}`);
     await ctx.close();
