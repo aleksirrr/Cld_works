@@ -1,0 +1,31 @@
+name: Diagnose (headless load test)
+
+# Temporary helper: builds the game, opens it in Chrome and reports what happens as annotations.
+on:
+  push:
+    branches: [diagnose]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '14'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build:release
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install playwright-core (uses the Chrome already on the runner)
+        run: |
+          mkdir -p /tmp/probe && cd /tmp/probe && npm init -y >/dev/null
+          npm i playwright-core@1.48.2 --no-audit --no-fund
+      - name: Load the built game in Chrome
+        run: NODE_PATH=/tmp/probe/node_modules node .github/diagnose/probe.js
