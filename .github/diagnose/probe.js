@@ -65,9 +65,12 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
       } catch (e) { logs.push("[snippet failed] " + e.message); }
     }
     await page.screenshot({ path: `shot-${name}.png` }).catch(() => {});
-    const text = `STATE ${JSON.stringify(state)}\nLOGS (${logs.length}):\n` + logs.slice(0, 22).join("\n");
+    const groups = new Map();
+    for (const l of logs) { const k = l.split("\n").slice(0, 2).join(" | ").replace(/app\.[0-9a-f]+\.js:\d+:\d+|chunk-vendors\.[0-9a-f]+\.js:\d+:\d+/g, "BUNDLE").replace(/[?&]_p=\d+.*/, "").slice(0, 220); groups.set(k, (groups.get(k) || 0) + 1); }
+    const grouped = [...groups].sort((a, b) => b[1] - a[1]).slice(0, 18).map(([k, n]) => `${n}x ${k}`);
+    const text = `STATE ${JSON.stringify(state)}\nDISTINCT LOG KINDS (${groups.size}), total ${logs.length}:\n` + grouped.join("\n");
     summary += `## ${name}\n\`\`\`\n${text}\n\`\`\`\n`;
-    console.log(`::error title=probe ${name}::${esc(text.slice(0, 6000))}`);
+    console.log(`::error title=probe ${process.env.PROBE_NAME || ""} ${name}::${esc(text.slice(0, 6000))}`);
     await ctx.close();
   }
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
