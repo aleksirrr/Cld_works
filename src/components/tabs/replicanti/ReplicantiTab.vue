@@ -4,7 +4,6 @@ import wordShift from "@/core/word-shift";
 import ReplicantiUpgradeButton, { ReplicantiUpgradeButtonSetup } from "./ReplicantiUpgradeButton";
 import PrimaryButton from "@/components/PrimaryButton";
 import ReplicantiGainText from "./ReplicantiGainText";
-import ReplicantiBar from "./ReplicantiBar";
 import ReplicantiGalaxyButton from "./ReplicantiGalaxyButton";
 
 export default {
@@ -12,27 +11,21 @@ export default {
   components: {
     PrimaryButton,
     ReplicantiGainText,
-    ReplicantiBar,
     ReplicantiUpgradeButton,
     ReplicantiGalaxyButton,
   },
   data() {
     return {
       isUnlocked: false,
-      realityUnlocked:false,
       isUnlockAffordable: false,
       isInEC8: false,
       ec8Purchases: 0,
       amount: new Decimal(),
       mult: new Decimal(),
-      hasADMult: false,
-      multAD: new Decimal(),
       hasTDMult: false,
       multTD: new Decimal(),
       hasDTMult: false,
       multDT: new Decimal(),
-      hasTGPow: false,
-      TGPow: 0,
       hasIPMult: false,
       multIP: new Decimal(),
       hasDEMult: false,
@@ -100,8 +93,7 @@ export default {
         upgrade,
         value => `Interval: ${formatInterval(value)}`,
         cost =>
-          `➜ ${formatInterval(upgrade.nextValue)} Costs: ${format(cost)} IP`,
-        progress => `${progress*100}%`
+          `➜ ${formatInterval(upgrade.nextValue)} Costs: ${format(cost)} IP`
       );
     },
     maxGalaxySetup() {
@@ -109,7 +101,7 @@ export default {
       return new ReplicantiUpgradeButtonSetup(
         upgrade,
         value => {
-          let description = `Max ${this.replicantiScalingDisplay()} Replicanti Galaxies: `;
+          let description = `Max Replicanti Galaxies: `;
           const extra = upgrade.extra;
           if (extra.gt(0)) {
             const total = value.add(extra);
@@ -119,8 +111,7 @@ export default {
           }
           return description;
         },
-        cost => `+${formatInt(1)} Costs: ${format(cost)} IP`,
-        progress => `${progress*100}%`
+        cost => `+${formatInt(1)} Costs: ${format(cost)} IP`
       );
     },
     boostText() {
@@ -160,7 +151,9 @@ export default {
           <span class="c-replicanti-description__accent">${formatPow(this.powST, 2, 3)}</span> power` : ""}
           to Space Theorems from a Compression Upgrade`);
       }
-      return `${boostList.join("")}`;
+      if (boostList.length === 1) return `${boostList[0]}.`;
+      if (boostList.length === 2) return `${boostList[0]}<br> and ${boostList[1]}.`;
+      return `${boostList.slice(0, -1).join(",<br>")},<br> and ${boostList[boostList.length - 1]}.`;
     },
     hasMaxText: () => PlayerProgress.realityUnlocked() && !Pelle.isDoomed,
     toMaxTooltip() {
@@ -171,11 +164,6 @@ export default {
     }
   },
   methods: {
-    replicantiScalingDisplay(){
-      if (ReplicantiUpgrade.galaxies.value>=ReplicantiUpgrade.galaxies.remoteRGStart)return "Remote"
-      else if (ReplicantiUpgrade.galaxies.value>=ReplicantiUpgrade.galaxies.distantRGStart)return "Distant"
-      return "";
-    },
     update() {
       this.isUnlocked = Replicanti.areUnlocked;
       this.unlockCost = new Decimal(1e140).dividedByEffectOf(PelleRifts.vacuum.milestones[1]);
@@ -233,11 +221,6 @@ export default {
         Replicanti.galaxies.max.gte(1) || PlayerProgress.eternityUnlocked();
       this.maxReplicanti.copyFrom(player.records.thisReality.maxReplicanti);
       this.estimateToMax = this.calculateEstimate();
-      this.realityUnlocked = PlayerProgress.realityUnlocked()
-    },
-    startHtml(value){
-      if (isInaccessible(value)) return `<div class="c-replicanti-effect-container"><span class="c-replicanti-description__accent c-replicanti-description__accent--fixed">`
-      else return `<div class="c-replicanti-effect-container"><span class="c-replicanti-description__accent">`
     },
     vacuumText() {
       return wordShift.wordCycle(PelleRifts.vacuum.name);
@@ -288,45 +271,33 @@ export default {
         {{ quantifyHybridLarge("extra Replicanti Galaxy", effarigInfinityBonusRG) }}
         (Next Replicanti Galaxy at {{ format(nextEffarigRGThreshold, 2) }} cap)
       </div>
-      <div class="c-replicanti-table">
       <p class="c-replicanti-description">
         You have
-        <span class="c-replicanti-description__accent"
-        :class="{'c-replicanti-description__accent--fixed': isInaccessible(amount) }"
-        >{{ format(amount, 2, 0) }}</span>
+        <span class="c-replicanti-description__accent">{{ format(amount, 2, 0) }}</span>
         Replicanti, translated to
-        </p>
-        <div 
-        class="l-replicanti-effects-list"
-        v-html="boostText" 
-        /> 
+        <br>
+        <span v-html="boostText" />
+      </p>
       <div
         v-if="hasMaxText"
-        class="c-replicanti-description c-replicanti-description-max"
+        class="c-replicanti-description"
       >
         Your maximum Replicanti reached this Reality is
         <span
           v-tooltip="toMaxTooltip"
           class="max-accent"
-          :class="{'max-accent--fixed': isInaccessible(maxReplicanti) }"
         >{{ format(maxReplicanti, 2) }}</span>.
       </div>
-      <ReplicantiBar />
-      <ReplicantiGainText />
-      <div class="l-replicanti-seperator">
-          <br  v-if="!isInEC8">
-          <div v-if="isInEC8">
-            You have {{ quantifyInt("purchase", ec8Purchases) }} left within Eternity Challenge 8.
-          </div>
-          <div class="l-replicanti-upgrade-row">
-          <ReplicantiUpgradeButton :setup="replicantiChanceSetup" />
-          <ReplicantiUpgradeButton :setup="maxGalaxySetup" />
-          <ReplicantiUpgradeButton :setup="replicantiIntervalSetup" />
-        </div>
-      </div>
-      <ReplicantiGalaxyButton v-if="canSeeGalaxyButton" />
       <br>
-      <div v-if="canSeeGalaxyButton">
+      <div v-if="isInEC8">
+        You have {{ quantifyInt("purchase", ec8Purchases) }} left within Eternity Challenge 8.
+      </div>
+      <div class="l-replicanti-upgrade-row">
+        <ReplicantiUpgradeButton :setup="replicantiChanceSetup" />
+        <ReplicantiUpgradeButton :setup="replicantiIntervalSetup" />
+        <ReplicantiUpgradeButton :setup="maxGalaxySetup" />
+      </div>
+      <div>
         The Max Replicanti Galaxy upgrade can be purchased endlessly, but costs increase
         <br>
         more rapidly above {{ formatInt(distantRG) }} Replicanti Galaxies
@@ -351,17 +322,9 @@ export default {
 
 <style scoped>
 .max-accent {
-  color: var(--color-replicanti);
+  color: var(--color-accent);
   text-shadow: 0 0 0.2rem var(--color-reality-dark);
-  font-weight: bold;
-  font-family: cambria;
-  font-size:2rem;
   cursor: default;
-}
-
-.max-accent--fixed {
-  font-weight: normal;
-  font-family: typewriter;
 }
 
 .modified-cap {

@@ -12,9 +12,7 @@ export default {
     GlyphSetPreview,
     PerkShopUpgradeButton,
     CelestialQuoteHistory,
-    CustomizeableTooltip,
-    PrimaryButton,
-    PseudoChargeButton
+    CustomizeableTooltip
   },
   data() {
     return {
@@ -47,34 +45,6 @@ export default {
     };
   },
   computed: {
-    grid() {
-      return [
-        [
-          InfinityUpgrade.dim18mult,
-          InfinityUpgrade.dim27mult,
-          InfinityUpgrade.dim36mult,
-          InfinityUpgrade.dim45mult
-        ],
-        [
-          InfinityUpgrade.buy10Mult,
-          InfinityUpgrade.resetBoost,
-          InfinityUpgrade.galaxyBoost,
-          InfinityUpgrade.dimboostMult
-        ],
-        [
-          InfinityUpgrade.totalTimeMult,
-          InfinityUpgrade.thisInfinityTimeMult,
-          InfinityUpgrade.unspentIPMult,
-          InfinityUpgrade.ipGen
-        ],
-        [
-          InfinityUpgrade.skipReset1,
-          InfinityUpgrade.skipReset2,
-          InfinityUpgrade.skipReset3,
-          InfinityUpgrade.skipResetGalaxy
-        ]
-      ];
-    },
     unlockInfos: () => TeresaUnlocks.all,
     pouredAmountCap: () => Teresa.pouredAmountCap,
     showRunReward() {
@@ -133,15 +103,9 @@ export default {
           ? `${quantify("Reality Machine", this.lastMachines, 2)}`
           : `${quantify("Imaginary Machine", this.lastMachines.dividedBy(DC.E10000), 2)}`);
     },
-    isDoomed: () => Pelle.isDoomed,
-    realityTitle() {
-      return player.options.naming.celestial ? `Enter Teresa's ${Teresa.RealityName}`
-       : "Start Teresa's Reality"
-    },
-    disChargeClassObject() {
+    unlockInfoTooltipArrowStyle() {
       return {
-        "o-primary-btn--subtab-option": true,
-        "o-primary-btn--charged-respec-active": this.disCharge
+        borderRight: "0.5rem solid var(--color-teresa--base)"
       };
     },
     isDoomed: () => Pelle.isDoomed || Slabdrill.isCursed,
@@ -208,7 +172,7 @@ export default {
     },
     startRun() {
       if (this.isDoomed) return;
-      Modal.celestials.show({ name: "Teresa's", number: 0, celestial: Teresa });
+      Modal.celestials.show({ name: "Teresa's", number: 0 });
     },
     unlockDescriptionHeight(unlockInfo) {
       const maxPrice = TeresaUnlocks[Teresa.lastUnlock].price;
@@ -255,16 +219,13 @@ export default {
       You have {{ quantify("Reality Machine", rm, 2, 2) }}.
     </div>
     <div class="l-mechanics-container">
-      <div style="display: flex;flex-direction: column;justify-content: center;"
+      <div
         v-if="hasReality"
         class="l-teresa-mechanic-container"
       >
-        <div class="c-teresa-run-button c-teresa-container">
-          <span 
-          class="c-teresa-run-title"
-          :class="{ 'o-pelle-disabled': isDoomed }"
-          >
-            {{ realityTitle }}
+        <div class="c-teresa-unlock c-teresa-run-button">
+          <span :class="{ 'o-pelle-disabled': isDoomed }">
+            Start Teresa's Reality.
           </span>
           <div
             :class="runButtonClassObject"
@@ -288,12 +249,10 @@ export default {
                 :text-hidden="true"
                 :force-name-color="false"
                 :glyphs="bestAMSet"
-                :needsCrates="2"
-                marginsize="0.2rem 0.4rem"
               />
             </span>
             <span v-else>
-              You have not completed {{ realityTitle }} yet.
+              You have not completed Teresa's Reality yet.
             </span>
           </div>
         </div>
@@ -301,7 +260,7 @@ export default {
           v-if="showRunReward"
           class="c-teresa-unlock"
         >
-        {{ realityTitle }} reward: <br> Glyph Sacrifice power {{ formatX(runReward, 2, 2) }}
+          Teresa Reality reward: Glyph Sacrifice power {{ formatX(runReward, 2, 2) }}
         </div>
         <div
           v-if="hasEPGen"
@@ -312,7 +271,7 @@ export default {
           </span>
         </div>
       </div>
-      <div class="l-container-container c-teresa-container">
+      <div class="l-rm-container l-teresa-mechanic-container">
         <button
           v-if="chargeUnlocked"
           :class="autoClassObject"
@@ -330,7 +289,6 @@ export default {
         >
           {{ pourText }}
         </button>
-      <div class="l-rm-container l-teresa-mechanic-container">
         <div class="c-rm-store">
           <div
             class="c-rm-store-inner c-rm-store-inner--light"
@@ -360,44 +318,31 @@ export default {
             right="0"
             mode="right"
             :show="true"
-            :tooltip-arrow-style="unlockInfoTooltipArrowStyle(unlockInfo)"
+            :tooltip-arrow-style="unlockInfoTooltipArrowStyle"
             :tooltip-class="unlockInfoTooltipClass(unlockInfo)"
           >
             <template #mainContent>
               <div
                 class="c-teresa-milestone-line"
                 :class="{ 'c-teresa-milestone-line--unlocked': hasUnlock(unlockInfo) }"
-              >{{ format(unlockInfo.price, 2, 2) }}</div>
+              />
             </template>
             <template #tooltipContent>
-              <span :class="{ 'o-pelle-disabled': unlockInfo.pelleDisabled }">
-                {{ unlockInfo.description }}
-              </span>
+              <b :class="{ 'o-pelle-disabled': unlockInfo.pelleDisabled }">
+                {{ format(unlockInfo.price, 2, 2) }}: {{ unlockInfo.description }}
+              </b>
             </template>
           </CustomizeableTooltip>
         </div>
       </div>
-      <div class="c-rm-store-label">
-              {{ formatX(rmMult, 2, 2) }} RM gain
-              <br>
-              {{ format(pouredAmount, 2, 2) }} / {{ format(pouredAmountCap, 2, 2) }}
-        </div>
-      <!-- v-if="pouredAmount < pouredAmountCap"
-      <div class="l-rm-container-labels l-teresa-mechanic-container"/> -->        
-      </div>
-      <div style="display: flex;flex-direction: column;justify-content: center;">
-        <div
+      <div
         v-if="hasPerkShop"
-        class="c-teresa-shop c-teresa-container"
+        class="c-teresa-shop"
       >
-      <div class="c-shop-title c-teresa-shop-title">
-        Ϟ <span class="c-teresa-run-title" style="font-size: 2rem;">Teresa's Perk shop</span> Ϟ
-      </div>
         <span class="o-teresa-pp">
-          You have {{ quantifyInt("Perk Point", perkPoints, 2, 0) }}.
-        </span> <br>
-        <div style="display:flex;flex-wrap:wrap;justify-content:center">
-          <PerkShopUpgradeButton
+          You have {{ quantify("Perk Point", perkPoints, 2, 0) }}.
+        </span>
+        <PerkShopUpgradeButton
           v-for="upgrade in upgrades"
           :key="upgrade.id"
           :upgrade="upgrade"
@@ -411,65 +356,17 @@ export default {
         </PrimaryButton>
         You can now modify the appearance of your Glyphs to look like Music Glyphs.
       </div>
-        <div
-        v-if="chargeUnlocked"
-        class="c-teresa-charger c-teresa-container"
-        >
-        <div class="c-subtab-option-container">
-      <PrimaryButton
-        :class="disChargeClassObject"
-        @click="disCharge = !disCharge"
-      >
-        Respec Charged Infinity Upgrades on next Reality
-      </PrimaryButton>
-      <PrimaryButton
-      v-if="this.autoswitch"
-      class="o-primary-btn--subtab-option" 
-      @click="clickHandler()"
-      >
-        <i class="fas fa-expand-arrows-alt"/>
-      </PrimaryButton>
-      </div>
-          You have charged {{ formatInt(chargesUsed) }}/{{ formatInt(totalCharges) }} Infinity Upgrades.
-       <div class="l-pseudo-charger-grid">
-        <div
-        v-for="(column, columnId) in grid"
-        :key="columnId"
-        class="l-pseudo-charger__column"
-      >
-        <PseudoChargeButton
-          v-for="upgrade in column"
-          :key="upgrade.id"
-          :upgrade="upgrade"
-        />
-      </div>
-       </div>
-        </div>
-      </div>
+      <div
+        v-else
+        class="l-rm-container-labels l-teresa-mechanic-container"
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
 .c-disabled-pour {
+  opacity: 0.8;
   pointer-events: none;
-}
-.c-teresa-shop-title {
-    /* stylelint-disable-next-line unit-allowed-list */
-    min-width: 11ch;
-    text-align: center;
-    font-weight: bold;
-    border-top: solid 1px;
-    border-bottom: solid 1px;
-    padding: .2rem;
-    margin:0.5rem;
-    border-image: linear-gradient(90deg,transparent,var(--color-teresa--base),transparent) 1;
-    background: linear-gradient(90deg,transparent,#5151ec60,transparent);
-}
-.c-teresa-run-title {
-  font-family: cambria;
-  font-size: 1.5rem;
-  line-height: 1.2;
-  font-weight: bold;
 }
 </style>

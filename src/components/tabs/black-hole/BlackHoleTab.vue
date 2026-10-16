@@ -156,8 +156,8 @@ export default {
 
 <template>
   <div class="l-black-hole-tab">
-    <div
-      v-if="isEnslaved || isDoomed || isDisabled"
+    <template v-if="isEnslaved || isDoomed || isDisabled">
+      <div
       class="c-black-hole-disabled-description"
       :class="{'c-black-hole-disabled-description-doomed' : isDoomed}"
       >
