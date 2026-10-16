@@ -39,8 +39,18 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
         uiTextStart: ((document.getElementById("ui") || {}).innerText || "").replace(/\s+/g, " ").slice(0, 300),
         bodyTextStart: document.body.innerText.replace(/\s+/g, " ").slice(0, 300) };
     }).catch((e) => ({ evalError: e.message }));
+    // Show the built code around the first stack frame of the first page error.
+    const firstErr = logs.find((l) => l.startsWith("[pageerror]"));
+    const fm = firstErr && firstErr.match(/(http:\/\/localhost:8080\/[^\s:)]+\.js):(\d+):(\d+)/);
+    if (fm) {
+      try {
+        const body = fs.readFileSync(path.join(dist, fm[1].replace("http://localhost:8080/", "")), "utf8").split("\n");
+        const line = body[Number(fm[2]) - 1] || ""; const c = Number(fm[3]);
+        logs.push("[snippet] " + line.slice(Math.max(0, c - 400), c + 300).replace(/\s+/g, " "));
+      } catch (e) { logs.push("[snippet failed] " + e.message); }
+    }
     await page.screenshot({ path: `shot-${name}.png` }).catch(() => {});
-    const text = `STATE ${JSON.stringify(state)}\nLOGS (${logs.length}):\n` + logs.slice(0, 20).join("\n");
+    const text = `STATE ${JSON.stringify(state)}\nLOGS (${logs.length}):\n` + logs.slice(0, 22).join("\n");
     summary += `## ${name}\n\`\`\`\n${text}\n\`\`\`\n`;
     console.log(`::error title=probe ${name}::${esc(text.slice(0, 6000))}`);
     await ctx.close();
