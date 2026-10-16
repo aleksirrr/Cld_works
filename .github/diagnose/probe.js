@@ -55,21 +55,67 @@ const nl_ = "\n";
     page.on("requestfailed", (r) => logs.push(`[requestfailed] ${r.url()} ${(r.failure() || {}).errorText}`.slice(0, 300)));
     page.on("response", (r) => { if (r.status() >= 400) logs.push(`[http ${r.status()}] ${r.url()}`); });
     await page.goto("http://localhost:8080/", { waitUntil: "load" }).catch((e) => logs.push("goto: " + e.message));
-    await page.waitForTimeout(30000);
-    // Visit every tab/subtab the fresh save lets us open, to surface render errors.
-    const tour = await page.evaluate(async () => {
-      const res = { visited: 0, thrown: [] };
+    await page.waitForTimeout(12000);
+    // ---- INTRO SCREEN: what is on screen, what is white, does "Start New Game" work? ----
+    const shot = async (label) => {
       try {
-        for (const tab of (window.Tabs ? window.Tabs.all : [])) {
-          for (const sub of (tab.subtabs || [tab])) {
-            try { if (sub.show) { sub.show(true); res.visited++; } } catch (e) { res.thrown.push(String(e).slice(0, 160)); }
-            await new Promise((r) => setTimeout(r, 200));
-          }
-        }
-      } catch (e) { res.thrown.push("tour: " + String(e).slice(0, 160)); }
+        const buf = await page.screenshot({ type: "jpeg", quality: 28 });
+        if (buf.length < 48000) console.log(`::notice title=shot ${process.env.PROBE_NAME || ""} ${name} ${label}::${buf.toString("base64")}`);
+        else logs.push(`[shot ${label}] too big (${buf.length})`);
+      } catch (e) { logs.push("[shot failed] " + e.message); }
+    };
+    const introInfo = await page.evaluate(() => {
+      const out = {};
+      const btn = [...document.querySelectorAll("button, .o-primary-btn")].find((b) => /Start New Game/i.test(b.textContent));
+      out.hasStartBtn = !!btn; const chain = []; let e = btn;
+      while (e && chain.length < 9) { const cs = getComputedStyle(e);
+        chain.push(`${e.tagName.toLowerCase()}#${e.id}.${String(e.className || "").slice(0, 45)} bg=${cs.backgroundColor} pos=${cs.position} z=${cs.zIndex} op=${cs.opacity}`); e = e.parentElement; }
+      out.chain = chain;
+      out.body = `body bg=${getComputedStyle(document.body).backgroundColor} html bg=${getComputedStyle(document.documentElement).backgroundColor}`;
+      out.top = document.elementsFromPoint(innerWidth / 2, innerHeight / 2).slice(0, 7).map((x) =>
+        `${x.tagName.toLowerCase()}#${x.id}.${String(x.className || "").slice(0, 40)} bg=${getComputedStyle(x).backgroundColor} op=${getComputedStyle(x).opacity}`);
+      out.player = window.player ? { hasSeenIntro: player.hasSeenIntro, introTick: player.introTick, introFrozen: player.introFrozen, theme: (player.options || {}).theme } : null;
+      out.hasDev = typeof window.dev !== "undefined";
+      return out;
+    }).catch((e) => ({ introError: e.message }));
+    logs.push("[intro] " + JSON.stringify(introInfo));
+    await shot("intro");
+    let clickInfo = "no start button";
+    try {
+      const b = page.getByText("Start New Game", { exact: true }).first();
+      if (await b.count()) { await b.click({ timeout: 5000 }); await page.waitForTimeout(3000);
+        clickInfo = await page.evaluate(() => ({
+          modalText: ((document.querySelector(".l-modal-overlay, .c-modal, .l-modal") || {}).innerText || "").replace(/\s+/g, " ").slice(0, 300),
+          buttons: [...document.querySelectorAll("button, .o-primary-btn")].map((x) => x.textContent.trim()).filter(Boolean).slice(0, 12),
+          introTick: window.player ? player.introTick : null, introFrozen: window.player ? player.introFrozen : null,
+        })); }
+    } catch (e) { clickInfo = "click failed: " + e.message.slice(0, 200); }
+    logs.push("[after-click] " + JSON.stringify(clickInfo));
+    await shot("after-click");
+    // ---- PLAY: skip the intro and push the game through several stages ----
+    const play = await page.evaluate(async () => {
+      const res = { steps: [], thrown: [] };
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const step = async (label, fn) => { try { const r = await fn(); res.steps.push(label + (r === undefined ? "" : "=" + String(r).slice(0, 40))); }
+        catch (e) { res.thrown.push(`${label}: ${(e && e.stack) || e}`.slice(0, 700)); } await sleep(400); };
+      await step("skipIntro", () => { if (window.dev && dev.skipIntro) { dev.skipIntro(); return "dev"; } player.hasSeenIntro = true; player.introFrozen = true; return "manual"; });
+      await step("giveAM", () => { player.antimatter = new Decimal("1e20"); });
+      for (let i = 1; i <= 8; i++) await step("buyMax" + i, () => (typeof buyMaxDimension === "function" ? buyMaxDimension(i) : "no-fn"));
+      await step("tickspeed", () => (typeof buyMaxTickSpeed === "function" ? buyMaxTickSpeed() : "no-fn"));
+      await step("boost1", () => { player.antimatter = new Decimal("1e20"); for (let i = 1; i <= 8; i++) player.dimensions.antimatter[i - 1].amount = new Decimal(100); return typeof requestDimensionBoost === "function" ? requestDimensionBoost(true) : "no-fn"; });
+      await step("galaxy1", () => { for (let i = 1; i <= 8; i++) player.dimensions.antimatter[i - 1].amount = new Decimal(1000); return typeof requestGalaxyReset === "function" ? requestGalaxyReset(true) : "no-fn"; });
+      await step("crunch", () => { player.antimatter = Decimal.pow10(310); return typeof bigCrunchResetRequest === "function" ? bigCrunchResetRequest() : (typeof bigCrunchReset === "function" ? bigCrunchReset() : "no-fn"); });
+      await sleep(3000);
+      await step("giveIP", () => { player.infinityPoints = Decimal.pow10(320); player.antimatter = Decimal.pow10(310); });
+      await step("eternity", () => (typeof eternity === "function" ? eternity(true) : "no-fn"));
+      await sleep(3000);
+      await step("tour", async () => { let n = 0; for (const tab of (window.Tabs ? window.Tabs.all : [])) for (const sub of (tab.subtabs || [tab])) { try { if (sub.show) { sub.show(true); n++; } } catch (e) { res.thrown.push(`tab ${tab.config && tab.config.id}: ${(e && e.stack) || e}`.slice(0, 500)); } await sleep(150); } return n; });
       return res;
-    }).catch((e) => ({ tourError: e.message }));
-    logs.push("[tour] " + JSON.stringify(tour));
+    }).catch((e) => ({ playError: e.message }));
+    for (const th of (play.thrown || [])) logs.push("[play-throw] " + th);
+    logs.push("[play] " + JSON.stringify({ steps: play.steps, error: play.playError }));
+    await page.waitForTimeout(4000);
+    await shot("after-play");
     await page.waitForTimeout(1500);
     const state = await page.evaluate(() => {
       const d = (id) => { const e = document.getElementById(id); return e ? (e.style.display || "(default)") : "(missing)"; };
@@ -90,11 +136,13 @@ const nl_ = "\n";
     await page.screenshot({ path: `shot-${name}.png` }).catch(() => {});
     const where = await symbolicate(logs);
     const groups = new Map();
-    for (const l of logs) { const k = l.split("\n").slice(0, 2).join(" | ").replace(/app\.[0-9a-f]+\.js:\d+:\d+|chunk-vendors\.[0-9a-f]+\.js:\d+:\d+/g, "BUNDLE").replace(/[?&]_p=\d+.*/, "").slice(0, 220); groups.set(k, (groups.get(k) || 0) + 1); }
+    const SPECIAL = /^\[(intro|after-click|play|play-throw|shot)/;
+    for (const l of logs.filter((x) => !SPECIAL.test(x))) { const k = l.split("\n").slice(0, 2).join(" | ").replace(/app\.[0-9a-f]+\.js:\d+:\d+|chunk-vendors\.[0-9a-f]+\.js:\d+:\d+/g, "BUNDLE").replace(/[?&]_p=\d+.*/, "").slice(0, 220); groups.set(k, (groups.get(k) || 0) + 1); }
     const grouped = [...groups].sort((a, b) => b[1] - a[1]).slice(0, 18).map(([k, n]) => `${n}x ${k}`);
-    const text = `STATE ${JSON.stringify(state)}\nDISTINCT LOG KINDS (${groups.size}), total ${logs.length}:\n` + grouped.join("\n") + "\n" + where.join("\n");
+    const special = logs.filter((x) => SPECIAL.test(x)).slice(0, 18).map((x) => x.slice(0, 1500));
+    const text = `STATE ${JSON.stringify(state)}\nDISTINCT LOG KINDS (${groups.size}), total ${logs.length}:\n` + grouped.join("\n") + "\n--- SPECIAL ---\n" + special.join("\n") + "\n" + where.join("\n");
     summary += `## ${name}\n\`\`\`\n${text}\n\`\`\`\n`;
-    console.log(`::error title=probe ${process.env.PROBE_NAME || ""} ${name}::${esc(text.slice(0, 6000))}`);
+    console.log(`::error title=probe ${process.env.PROBE_NAME || ""} ${name}::${esc(text.slice(0, 14000))}`);
     await ctx.close();
   }
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
