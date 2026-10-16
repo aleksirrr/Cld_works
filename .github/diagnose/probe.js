@@ -33,6 +33,21 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
     page.on("response", (r) => { if (r.status() >= 400) logs.push(`[http ${r.status()}] ${r.url()}`); });
     await page.goto("http://localhost:8080/", { waitUntil: "load" }).catch((e) => logs.push("goto: " + e.message));
     await page.waitForTimeout(30000);
+    // Visit every tab/subtab the fresh save lets us open, to surface render errors.
+    const tour = await page.evaluate(async () => {
+      const res = { visited: 0, thrown: [] };
+      try {
+        for (const tab of (window.Tabs ? window.Tabs.all : [])) {
+          for (const sub of (tab.subtabs || [tab])) {
+            try { if (sub.show) { sub.show(true); res.visited++; } } catch (e) { res.thrown.push(String(e).slice(0, 160)); }
+            await new Promise((r) => setTimeout(r, 200));
+          }
+        }
+      } catch (e) { res.thrown.push("tour: " + String(e).slice(0, 160)); }
+      return res;
+    }).catch((e) => ({ tourError: e.message }));
+    logs.push("[tour] " + JSON.stringify(tour));
+    await page.waitForTimeout(1500);
     const state = await page.evaluate(() => {
       const d = (id) => { const e = document.getElementById(id); return e ? (e.style.display || "(default)") : "(missing)"; };
       return { loadingDisplay: d("loading"), browserWarning: d("browser-warning"), playerDefined: typeof window.player !== "undefined",
