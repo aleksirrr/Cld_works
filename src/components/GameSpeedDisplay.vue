@@ -11,8 +11,6 @@ export default {
       isStopped: false,
       isEC12: false,
       isPulsing: false,
-      gametimeequal:0,
-      fade:0,
     };
   },
   computed: {
@@ -40,7 +38,6 @@ export default {
       this.baseSpeed.copyFrom(getGameSpeedupFactor());
       this.pulsedSpeed.copyFrom(getGameSpeedupForDisplay());
       this.hasSeenAlteredSpeed = PlayerProgress.seenAlteredSpeed();
-      this.gametimeequal = TimeSpan.fromMilliseconds(getGameSpeedupForDisplay()*1000).toStringShort(false)
       this.isStopped = Enslaved.isStoringRealTime;
       this.isEC12 = EternityChallenge(12).isRunning || player.endgame.overcharge.isRunning || player.compression.active ||
         (player.universes.current >= 1 && (player.universes.current === 1 || player.universes.current % 2 === 0));
@@ -60,7 +57,7 @@ export default {
 </script>
 
 <template>
-  <span class="c-gamespeed" :style="{'opacity':fade}">
+  <span class="c-gamespeed">
     <span>
       {{ baseText }}
     </span>
