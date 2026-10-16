@@ -37,7 +37,6 @@ export default {
       this.newCredits = player.endgame.credits;
     }
   }
-
 };
 </script>
 
@@ -48,30 +47,10 @@ export default {
       opacity,
       pointerEvents: opacity > 1 ? 'auto' : 'none'
     }"
-  >
-  <div v-if="flashdecay<2"
-    class="c-flash-overlay"
-    :style="flashstyle"
   />
-  <div
-    class="c-background-overlay_credits"
-    :style="{
-      opacity:bgopacity
-    }"
-  />
-  </div>
 </template>
 
 <style scoped>
-.c-flash-overlay {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 9;
-  background-color: #ffffff;
-}
 .c-background-overlay {
   width: 100%;
   height: 100%;
@@ -79,42 +58,20 @@ export default {
   top: 0;
   left: 0;
   z-index: 8;
-  background: black;
+  background-color: #ffffff;
 }
-.c-background-overlay_credits {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 9;
-  background-image: url(../../../../public/images/background/credits_souls.png),
-  url(../../../../public/images/background/credits_souls-2.png),
-  url(../../../../public/images/background/credits.png);
-  background-position: center 0,center 0,center;
-  animation: a-credits-flow 120s infinite linear;
-  background-size: 51.2rem 51.2rem,51.2rem 51.2rem,100%;
-}
-@keyframes a-credits-flow {
-  from{background-position:center 0,center 0,center}
-  to{background-position:center -51.2rem,center -102.4rem,center}
-}
-/*
+
 .t-dark .c-background-overlay,
 .t-dark-metro .c-background-overlay {
-  background-image: url("../../../../public/images/background/dark-bg.png");
+  background-image: url("../../../../public/images/dark-bg.png");
   background-position: center;
 }
 
-.t-retro .c-background-overlay,
-.t-legendary .c-background-overlay,
-.t-hex .c-background-overlay,
 .t-inverted .c-background-overlay,
 .t-inverted-metro .c-background-overlay,
 .t-amoled .c-background-overlay,
 .t-amoled-metro .c-background-overlay,
-.t-s11 .c-background-overlay,
-.t-s13 .c-background-overlay {
+.t-s11 .c-background-overlay {
   background-color: black;
 }
 
@@ -125,7 +82,7 @@ export default {
   background-position: center bottom;
   background-size: 100%;
 }
-*/
+
 .t-s1 .c-background-overlay::before {
   content: "";
   width: 100%;
@@ -133,12 +90,12 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  background-image: url("../../../../public/images/background/snow1.png"),
-  url("../../../../public/images/background/snow2.png"),
-  url("../../../../public/images/background/snow3.png");
+  background-image: url("../../../../public/images/snow1.png"),
+  url("../../../../public/images/snow2.png"),
+  url("../../../../public/images/snow3.png");
   animation: a-snow 10s linear infinite, a-snow-fade 10s cubic-bezier(0, 0.3, 1, 0.7) infinite;
 }
-/*
+
 .t-s2 .c-background-overlay {
   background: url("../../../../public/images/s2-bg.svg") no-repeat;
   background-color: white;
@@ -185,9 +142,9 @@ export default {
   background-repeat: no-repeat;
   background-size: cover;
 }
-*/
+
 .t-s12 .c-background-overlay {
-  background: url("../../../../public/images/background/s12-bg.jpg") no-repeat;
+  background: url("../../../../public/images/s12-bg.jpg") no-repeat;
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;

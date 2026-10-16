@@ -57,3 +57,7 @@ jobs:
         env:
           PROBE_NAME: ${{ matrix.name }}
         run: NODE_PATH=/tmp/probe/node_modules node ${{ github.workspace }}/tool/.github/diagnose/probe.js
+      - name: Phone layout screenshots (merged build only)
+        if: matrix.name == 'merged'
+        working-directory: ${{ env.TARGET }}
+        run: NODE_PATH=/tmp/probe/node_modules node ${{ github.workspace }}/tool/.github/diagnose/layout.js

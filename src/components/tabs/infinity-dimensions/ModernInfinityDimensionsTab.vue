@@ -137,7 +137,7 @@ export default {
 
 <template>
   <div class="l-infinity-dim-tab">
-    <div class="c-subtab-option-container c-subtab-option-container--border">
+    <div class="c-subtab-option-container">
       <PrimaryButton
         v-if="!isEC8Running"
         class="o-primary-btn--subtab-option"
@@ -154,27 +154,20 @@ export default {
       </PrimaryButton>
     </div>
     <div>
-      <p class="c-game-background__infinity">
+      <p>
         You have
-        <span 
-        class="c-infinity-dim-description__accent"
-        :class="{'c-dim-description__accent--fixed': isInaccessible(infinityPower) }"
-        >{{ format(infinityPower, 2, 1) }}</span>
+        <span class="c-infinity-dim-description__accent">{{ format(infinityPower, 2, 1) }}</span>
         Infinity Power,
         <br>
         <span v-if="!isEC9Running">
           increased by
-          <span class="c-infinity-dim-description__accent"
-        :class="{'c-dim-description__accent--fixed': isInaccessible(conversionRate) }"
-        >{{ formatPow(conversionRate, 2, 3) }}</span>
+          <span class="c-infinity-dim-description__accent">{{ formatPow(conversionRate, 2, 3) }}</span>
         </span>
         <span v-else>
           translated
         </span>
         to a
-        <span class="c-infinity-dim-description__accent"
-        :class="{'c-dim-description__accent--fixed': isInaccessible(dimMultiplier) }"
-        >{{ formatX(dimMultiplier, 2, 1) }}</span>
+        <span class="c-infinity-dim-description__accent">{{ formatX(dimMultiplier, 2, 1) }}</span>
         multiplier on all
         <span v-if="!isEC9Running">{{ isFlipped ? "Matter" : "Antimatter" }} Dimensions.</span>
         <span v-else>Time Dimensions due to Eternity Challenge 9.</span>
@@ -215,13 +208,11 @@ export default {
           'o-pelle-disabled-pointer': creditsClosed
         }"
         @click="buyTesseract"
-        @mouseenter="showNextCap(true)"
-        @mouseleave="showNextCap(false)"
       >
-        <p class="c-infinity-dim-tab__tesseract-button__title">
-          Buy a Tesseract (<span :class="{'c-infinity-dim-tab__tesseract-button__title--fixed': isInaccessible(tesseractCountString) }">{{ tesseractCountString }}</span>)
+        <p>
+          Buy a Tesseract ({{ tesseractCountString }})
         </p>
-        <p>Increase Dimension caps by {{ formatInt(nextDimCapIncrease, 2) }}</p>
+        <p>Increase dimension caps by {{ format(nextDimCapIncrease, 2) }}</p>
         <p><b>Costs: {{ format(tesseractCost) }} IP</b></p>
       </button>
       <br>
@@ -246,13 +237,7 @@ export default {
       All Infinity Dimensions are limited to a single purchase.
     </div>
     <div v-else>
-      All Infinity Dimensions except for the {{ uniqueDimName ? "Polyzetton" : "the 8th" }} 
-      are limited to a maximum of <b style="color:var(--color-infinity)">
-        {{ formatInt(totalDimCap) }}<i
-        class="c-infinity-dim-tesseract__accent"
-        :class="{'c-infinity-dim-tesseract__glow':showNewCap}"
-        > ➜ {{ formatInt(nextDimCap) }}</i>
-      </b>
+      All Infinity Dimensions except for the 8th are limited to a maximum of {{ format(totalDimCap, 2) }}
       purchases each.
     </div>
     <div>You are getting {{ format(powerPerSecond, 2, 0) }} {{ incomeType }} per second.</div>
@@ -274,22 +259,3 @@ export default {
     </div>
   </div>
 </template>
-<style scoped>
-.c-game-background__infinity {
-  border-top: 0.1rem solid;
-  border-bottom: 0.1rem solid;
-  background: linear-gradient(90deg, transparent,
-  color-mix(in srgb, var(--color-infinity) 30%, transparent), transparent);
-  border-image: linear-gradient(90deg, transparent, var(--color-infinity), transparent) 1;
-}
-.c-infinity-dim-tesseract__accent{
-  color:var(--color-text);
-  font-weight:normal;
-  font-size:0rem;
-  transition: 0.15s;
-  text-shadow: var(--var-text-shadow, 0.1rem 0.1rem 0.3rem #2ebce6,0.1rem 0.1rem 0.1rem #2ebce6);
-}
-.c-infinity-dim-tesseract__glow{
-  font-size:unset
-}
-</style>

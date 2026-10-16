@@ -20,7 +20,6 @@ export default {
       hasAutoSingularity: false,
       nextLowerStep: new Decimal(),
       willCondenseOnDecrease: false,
-      progressToNext:0
     };
   },
   computed: {
@@ -123,23 +122,19 @@ export default {
 <template>
   <div class="c-laitela-singularity-container">
     <div>
-      <h2 class="c-laitela-singularity__currency">
-        You have <span :class="{'c-laitela-singularity__currency--fixed': isInaccessible(singularities) }">
-          {{ format(singularities, 2) }}</span>
-        {{ pluralize("Singularity", singularities) }}
+      <h2>
+        You have {{ quantify("Singularity", singularities, 2) }}
       </h2>
       <button
         :class="condenseClassObject()"
         @click="doSingularity"
       >
-      <div
-      :class="barClass"
-      :style="{'width':progressToNext*100+'%','transition-duration':'0.1s'}"
-      />
-        <h2 v-html="singularityFormText"/>
+        <h2>
+          {{ singularityFormText }}
+        </h2>
         <br v-if="singularityWaitText !== ''">
         <h2>
-          <i>{{ singularityWaitText }}</i>
+          {{ singularityWaitText }}
         </h2>
       </button>
     </div>
@@ -196,14 +191,5 @@ export default {
 <style scoped>
 .c-laitela-singularity__cap-control {
   margin: 0 0.3rem 1rem;
-}
-.c-laitela-singularity__currency {
-  font-weight: bold;
-  font-size: 1.8rem;
-  font-family: Cambria;
-}
-.c-laitela-singularity__currency--fixed {
-  font-weight: normal;
-  font-family: Typewriter;
 }
 </style>

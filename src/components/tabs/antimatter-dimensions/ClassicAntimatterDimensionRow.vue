@@ -1,14 +1,12 @@
 <script>
 import GenericDimensionRowText from "@/components/GenericDimensionRowText";
 import PrimaryButton from "@/components/PrimaryButton";
-import PrimaryToggleButton from "@/components/PrimaryToggleButton";
 
 export default {
   name: "ClassicAntimatterDimensionRow",
   components: {
     GenericDimensionRowText,
-    PrimaryButton,
-    PrimaryToggleButton
+    PrimaryButton
   },
   props: {
     tier: {
@@ -30,9 +28,6 @@ export default {
       until10Cost: new Decimal(0),
       isAffordable: false,
       isAffordableUntil10: false,
-      isAutobuyerUnlocked: false,
-      isAutobuyerOn: false,
-      visibleAutobuyers: false,
       isContinuumActive: false,
       continuumValue: new Decimal(0),
       isShown: false,
@@ -102,11 +97,6 @@ export default {
       };
     }
   },
-  watch:{
-    isAutobuyerOn(newValue) {
-      Autobuyer.antimatterDimension(this.tier).isActive = newValue;
-    }
-  },
   methods: {
     update() {
       const tier = this.tier;
@@ -133,10 +123,6 @@ export default {
       }
       this.isAffordable = dimension.isAffordable;
       this.isAffordableUntil10 = dimension.isAffordableUntil10;
-
-      this.isAutobuyerUnlocked = Autobuyer.antimatterDimension(tier).isUnlocked;
-      this.isAutobuyerOn = Autobuyer.antimatterDimension(tier).isActive;
-      this.visibleAutobuyers = player.options.adbuyersSubtab
       this.isContinuumActive = Laitela.continuumActive;
       if (this.isContinuumActive) this.continuumValue.copyFrom(dimension.continuumValue);
       this.isShown = (tier === 9 ? (player.celestials.slabdrill.goodbyeTick >= 40000 || Slabdrill.isDestroyed) :
@@ -174,12 +160,12 @@ export default {
   <div
     v-show="showRow"
     class="c-dimension-row c-antimatter-dim-row l-dimension-single-row"
-    :class="{ 'c-dim-row--not-reached': !isUnlocked,'c-dim-row--unstable': isDestabilized }"
+    :class="{ 'c-dim-row--not-reached': !isUnlocked }"
   >
     <GenericDimensionRowText
       :tier="tier"
       :name="name"
-      :multiplier-text="!isDestabilized?formatX(multiplier, 2, 2) : 'Destabilized'"
+      :multiplier-text="formatX(multiplier, 2, 2)"
       :amount-text="amountText"
       :rate="rateOfChange"
     />
@@ -210,13 +196,7 @@ export default {
         <div class="c-dim-purchase-count-tooltip">
           {{ boughtTooltip }}
         </div>
-      </PrimaryButton> 
-      <PrimaryToggleButton
-        v-if="(isAutobuyerUnlocked && !isContinuumActive) && visibleAutobuyers"
-        v-model="isAutobuyerOn"
-        class="o-primary-btn--ad-auto"
-        label="Auto:"
-      />
+      </PrimaryButton>
     </div>
   </div>
 </template>
@@ -235,27 +215,14 @@ export default {
 }
 
 .o-continuum {
-  --border: var(--color-laitela--base);
+  border-color: var(--color-laitela--accent);
   color: var(--color-laitela--accent);
   background: var(--color-laitela--base);
-  box-shadow: var(--var-box-shadow, 0 0 0 0.1rem var(--color-laitela--base) inset, 0 0 1rem -0.2rem inset var(--color-laitela--accent));
-  background-image: url(../../../../public/images/upgrades/button-continuum.png);
-  border: 0.1rem solid var(--color-laitela--accent);
-  background-position-y: center;
-  animation: a-continuum 5s linear infinite
 }
-.t-metro .o-continuum,
-.t-inverted-metro .o-continuum {
-  box-shadow: var(--var-box-shadow, 0.1rem 0.1rem 0.1rem 0 #9e9e9e, var(--border) inset 0px 0px 0px 1px);
-}
-.t-dark-metro .o-continuum {
-  box-shadow: var(--var-box-shadow, 0.1rem 0.1rem 0.1rem 0 black, var(--border) inset 0px 0px 0px 1px);
-}
+
 .o-continuum:hover {
+  border-color: var(--color-laitela--accent);
   color: var(--color-laitela--base);
   background: var(--color-laitela--accent);
-  box-shadow: var(--var-box-shadow, 0 0 0 0.1rem var(--color-laitela--base) inset, 0 0 1rem -0.2rem inset var(--color-laitela--base));
-  background-position-y: center;
-  background-image: url(../../../../public/images/upgrades/button-continuum.png);
 }
 </style>

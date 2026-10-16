@@ -50,7 +50,7 @@ export default {
     },
     startRun() {
       if (this.isDoomed) return;
-      Modal.celestials.show({ name: "Lai'tela's", number: 5, celestial: Laitela });
+      Modal.celestials.show({ name: "Lai'tela's", number: 5 });
     },
     classObject() {
       return {
@@ -76,11 +76,8 @@ export default {
 
 <template>
   <button :class="classObject()">
-    <span 
-    style="font-family: cambria;font-size:1.8rem"
-    :class="{ 'o-pelle-disabled': isDoomed }"
-    >
-      <b>{{ realityTitle() }}</b>
+    <span :class="{ 'o-pelle-disabled': isDoomed }">
+      <b>Start Lai'tela's Reality</b>
     </span>
     <div
       :class="runButtonClassObject()"
@@ -115,13 +112,11 @@ export default {
           :text-hidden="true"
           :force-name-color="false"
           :glyphs="bestSet"
-          :needsCrates="2"
-          marginsize="0.2rem 0.4rem"
         />
       </span>
       <span v-else>
         <br><br>
-        {{`${labelmode?"Lai'tela's Reality":"The "+newnamenormal}`}} has been fully destabilized and cannot have its reward further improved.
+        Lai'tela's Reality has been fully destabilized and cannot have its reward further improved.
       </span>
       <br>
     </div>

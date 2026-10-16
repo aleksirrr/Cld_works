@@ -25,7 +25,6 @@ export default {
   methods: {
     update() {
       this.isUnlocked = PlayerProgress.dilationUnlocked();
-      this.wobbly = PlayerProgress.dilationUnlocked() && player.options.animations.wobbly;
       this.isRunning = player.dilation.active;
       this.remnantRequirement = Pelle.remnantRequirementForDilation;
       this.showRequirement = Pelle.isDoomed && !Pelle.canDilateInPelle;
@@ -54,7 +53,7 @@ export default {
 <template>
   <button
     class="o-dilation-btn"
-    :class="buttonClassObject"
+    :class="isUnlocked ? 'o-dilation-btn--unlocked' : 'o-dilation-btn--locked'"
     @click="dilate()"
   >
     <span v-if="!isUnlocked">Purchase the Dilation Study to unlock.</span>
@@ -67,12 +66,12 @@ export default {
     <span v-else-if="canEternity && hasGain">
       {{ disableText }}
       <br>
-      Gain {{ quantify("Tachyon", tachyonGain, 2, 1) }}.
+      Gain {{ quantify("Tachyon Particle", tachyonGain, 2, 1) }}.
     </span>
     <span v-else-if="hasGain">
       {{ disableText }}
       <br>
-      Reach {{ quantify("Infinity Point", eternityGoal, 1, 0) }} to Eternity and gain Tachyons.
+      Reach {{ quantify("Infinity Point", eternityGoal, 1, 0) }} to Eternity and gain Tachyon Particles.
     </span>
     <span v-else>
       {{ disableText }}
