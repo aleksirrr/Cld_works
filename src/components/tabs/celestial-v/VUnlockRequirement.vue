@@ -17,7 +17,7 @@ export default {
     barProgressStyle() {
       const color = this.progress.eq(1)
         ? "var(--color-v--base)"
-        : "#ead58460";
+        : "#6b5f2e";
       return {
         background: color,
         width: `${this.progress.times(100).toNumber()}%`
@@ -27,7 +27,8 @@ export default {
       return {
         color: this.progress.eq(1)
           ? "black"
-          : "white",
+          : "var(--color-text)",
+        "border-color": "var(--color-text)",
       };
     },
   },
@@ -41,14 +42,6 @@ export default {
 </script>
 
 <template>
-  <div class="c-v-unlock-category">
-    <div 
-      v-html="symbol"
-      v-tooltip="`${dbEntry.name}<br><i>${formatPercents(progress2,2)}</i>`"
-      class="c-v-unlock-resource"
-      :class="{'c-v-unlock-resource-available':progress >= 1}"
-      :style="{'--color':color}"
-    />
   <div
     class="c-v-unlock-bar"
     :style="textStyle"
@@ -57,6 +50,6 @@ export default {
       class="c-v-unlock-bar__progress"
       :style="barProgressStyle"
     />
-    {{ dbEntry.format(resource) }} / {{ dbEntry.format(dbEntry.requirement) }}
+    {{ dbEntry.format(resource) }} / {{ dbEntry.format(dbEntry.requirement) }} {{ dbEntry.name }}
   </div>
 </template>

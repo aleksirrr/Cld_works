@@ -128,11 +128,7 @@ export default {
     <div v-if="noEffects">
       None (equip Glyphs to get their effects)
     </div>
-    <div :class="descriptionBlock">
-      <div v-if="effects.length>=1"
-      class="Current-glyph_effect-start"
-        >{{quantify("unique Diacritic",effects.length)}}</div>
-      <CurrentGlyphEffect
+    <CurrentGlyphEffect
       v-for="effect in effects"
       :key="effect.id + logTotalSacrifice"
       :effect="effect"
@@ -140,7 +136,6 @@ export default {
     />
     <div
       v-if="showChaosText"
-      v-html="chaosEffect"
       class="pelle-current-glyph-effects"
     >
       <div
@@ -156,12 +151,5 @@ export default {
 </template>
 
 <style scoped>
-.Current-glyph_effect-start{
-  border-bottom: 1px solid ;
-  border-image: linear-gradient(90deg,#80808040,#808080a0,#80808040) 1;
-  background: linear-gradient(90deg,transparent,color-mix(in srgb,var(--color-reality) 25%,transparent),transparent)
-}
-.o-descriptionBlock{
-  padding: 0rem 0.5rem;
-}
+
 </style>

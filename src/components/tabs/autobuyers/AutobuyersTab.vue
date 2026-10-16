@@ -120,7 +120,7 @@ export default {
         :key="tier"
         :tier="tier"
       />
-    </div>
+    </template>
     <SimpleAutobuyersMultiBox />
   </div>
 </template>
