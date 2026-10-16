@@ -60,6 +60,9 @@ const pride =        ["Pride",         "Deity",         "Monarch"];
 const forgotten =    ["Forgotten",     "Deity",         "Monarch"];
 const paramount =    ["Paramount",     "Deity",         "Monarch"];
 const weak =         ["Weak",          "Deity",         "Monarch"];
+
+// This means evil spirit. The player can be seen as the devil.
+const perkele =      ["PERKELE",       "PERKELE",       "PERKELE"];
 /* eslint-enable no-multi-spaces */
 
 export const pelleQuotes = {

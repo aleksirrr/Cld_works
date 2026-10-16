@@ -6,6 +6,7 @@ import OptionsButton from "@/components/OptionsButton";
 import PrimaryToggleButton from "@/components/PrimaryToggleButton";
 import SelectLargeNotationDropdown from "./SelectLargeNotationDropdown";
 import SelectNotationDropdown from "@/components/tabs/options-visual/SelectNotationDropdown";
+import SelectSidebarDropdown from "./SelectSidebarDropdown";
 import SelectThemeDropdown from "@/components/tabs/options-visual/SelectThemeDropdown";
 import UpdateRateSlider from "./UpdateRateSlider";
 

@@ -54,6 +54,7 @@ import PreviousSpeedrunTab from "./speedrun-milestones/PreviousSpeedrunTab";
 import RaTab from "./celestial-ra/RaTab";
 import RealityUpgradesTab from "./reality-upgrades/RealityUpgradesTab";
 import ReplicantiTab from "./replicanti/ReplicantiTab";
+import ResourceGalleryTab from "./resource-gallery/ResourceGalleryTab";
 import ResurgenceUpgradesTab from "./resurgence-upgrades/ResurgenceUpgradesTab";
 import SecretAchievementTab from "./secret-achievements/SecretAchievementTab";
 import ShopTab from "./shop/ShopTab";

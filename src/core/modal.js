@@ -50,6 +50,7 @@ import NotationModal from "@/components/modals/options/NotationModal";
 import PreferredMasteryTreeModal from "@/components/modals/options/PreferredMasteryTreeModal";
 import PreferredTreeModal from "@/components/modals/options/PreferredTreeModal";
 import SingleGlyphAppearanceModal from "@/components/modals/options/glyph-appearance/SingleGlyphAppearanceModal";
+import SidebarModal from "@/components/modals/options/SidebarModal";
 
 import DeleteCompanionGlyphModal from "@/components/modals/glyph-management/DeleteCompanionGlyphModal";
 import DeleteGlyphModal from "@/components/modals/glyph-management/DeleteGlyphModal";
