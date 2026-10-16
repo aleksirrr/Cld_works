@@ -734,3 +734,17 @@ window.SPEEDRUN_SEED_STATE = {
 };
 
 window.cloneDeep = value => cloneDeep(value);
+
+window.SHADOWS_SETTING = {
+  FULL: 0,
+  BOX: 1,
+  TEXT: 2,
+  NONE: 3,
+};
+
+window.SHADOWS_SETTING_CLASS = [
+  "full",
+  "box",
+  "text",
+  "none",
+];
