@@ -1,11 +1,6 @@
 <script>
-import FillBar from "@/components/FillBar";
-
 export default {
   name: "BigCrunchButton",
-  components: {
-    FillBar
-  },
   data() {
     return {
       isVisible: false,
@@ -29,8 +24,7 @@ export default {
     buttonClassObject() {
       return {
         "o-infinity-button--unavailable": !this.canCrunch,
-        "o-pelle-disabled-pointer": this.creditsClosed,
-        "a-wobble-multi": this.wobbly,
+        "o-pelle-disabled-pointer": this.creditsClosed
       };
     },
     // Show IP/min below this threshold, color the IP number above it
@@ -40,6 +34,7 @@ export default {
         "transition-duration": "0s"
       };
       if (this.hover) return {
+        color: "black",
         "transition-duration": "0.2s"
       };
 
@@ -89,7 +84,6 @@ export default {
 
       const gainedIP = gainedInfinityPoints();
       this.currentIP.copyFrom(Currency.infinityPoints);
-      this.antimatter.copyFrom(Currency.antimatter);
       this.gainedIP.copyFrom(gainedIP);
       this.currentIPRate.copyFrom(gainedIP.dividedBy(Math.clampMin(0.0005, Time.thisInfinityRealTime.totalMinutes.toNumber())));
       this.peakIPRate.copyFrom(player.records.thisInfinity.bestIPmin);
@@ -103,29 +97,7 @@ export default {
     crunch() {
       if (!Player.canCrunch) return;
       manualBigCrunchResetRequest();
-    },
-    tesseractProgress() {
-      const progress = this.currentIP.add(1).log10() / this.tesseractCost.log10();
-      if (progress > 1) return `100%`;
-      return `${progress * 100}%`;
-    },
-    ChallengeProgress() {
-      const progress = this.antimatter.add(1).log10() / this.infinityGoal.log10();
-      if (progress > 1) return `100%`;
-      return `${progress * 100}%`;
-    },
-    AutobuyerProgress() {
-      let progress = 1
-      if (this.autobuyer.mode===0) progress = this.gainedIP.div(this.autobuyer.value).toNumber();
-      if (this.autobuyer.mode===1) progress = ( this.autobuyer.time - this.autobuyer.nextTime ) / this.autobuyer.time;
-      if (this.autobuyer.mode===2) progress = Math.max(( this.gainedIP.add(1).log10() - this.autobuyer.highestPrevPrestige.add(1).log10() ) / ( this.autobuyer.nextValue.add(1).log10() - this.autobuyer.highestPrevPrestige.add(1).log10() ),0);
-      if (progress > 1) return `100%`;
-      return `${progress * 100}%`;
-    },
-    DangerProgress() {
-      if (EternityChallenge(4).completions >= 4) return `100%`
-      return `${this.currentInfinities.toNumber() / this.maximumInfinities.toNumber() * 100}%`
-    },
+    }
   },
 };
 </script>
@@ -139,10 +111,6 @@ export default {
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
-  <div style="z-index: 1;position: relative;">
-  <template>
-    <div class="o-prestige-description">Big Crunch</div>
-  </template>
     <!-- Cannot Crunch -->
     <template v-if="!canCrunch">
       Reach {{ format(infinityGoal, 2, 2) }}
@@ -161,49 +129,21 @@ export default {
     <template v-else>
       <div v-if="!showIPRate" />
       <b>
-        Gain
+        Big Crunch for
         <span :style="amountStyle">{{ format(gainedIP, 2) }}</span>
         <span v-if="showIPRate"> IP</span>
-        <span v-else><br> Infinity {{ pluralize("Point", gainedIP) }}</span>
+        <span v-else> Infinity {{ pluralize("Point", gainedIP) }}</span>
       </b>
       <template v-if="showIPRate">
         <br>
         Current: {{ format(currentIPRate, 2) }} IP/min
         <br>
-        Peak: {{ format(peakIPRate, 2) }} IP/min at {{ format(peakIPRateVal, 2) }} IP
+        Peak: {{ format(peakIPRate, 2) }} IP/min
+        <br>
+        at {{ format(peakIPRateVal, 2) }} IP
       </template>
       <div v-else />
     </template>
-  </div>
-    <div class="o-fill-container">
-        <template v-if="!canCrunch">
-          <FillBar
-          class="o-fill-bar--infinity"
-          :width="completionWidth"
-          />
-        </template>
-        <template v-if="inAntimatterChallenge"/>
-        <template v-else>
-          <FillBar
-          v-if="autobuyer.isActive"
-          class="o-fill-bar--infinity"
-          style="position: absolute;"
-          :width="autobuyerWidth"
-          />
-          <FillBar
-          v-if="isTesseractUnlocked"
-          class="o-fill-bar--tesseract"
-          style="position: absolute;"
-          :width="tesseractWidth"
-          />
-          <FillBar
-          v-if="isInEC4"
-          class="o-fill-bar--red"
-          style="position: absolute;"
-          :width="dangerWidth"
-          />
-        </template>
-    </div>
   </button>
 
   <button
@@ -219,13 +159,5 @@ export default {
 </template>
 
 <style scoped>
-.o-fill-bar--tesseract {
-  background: linear-gradient(transparent -100%,#2ebce6 300%);
-  box-shadow: var(--var-box-shadow, 0 0 1rem var(--color-text) inset);
-}
-.o-fill-bar--red {
-  background: url(../../../../public/images/upgrades/ec-red.png),linear-gradient(transparent -100%, var(--color-bad) 200%);
-  animation: a-possible 2s linear infinite;
-  box-shadow: var(--var-box-shadow, 0 0 .5rem #ffffff inset, 0 0 1rem red inset);
-}
+
 </style>

@@ -45,14 +45,14 @@ export default {
       return this.isFlipped && this.wantsFlipped
         ? [
           VRunUnlocks.all[6],
-          { empty: true },
           {},
-          { empty: true },
+          {},
+          {},
           { isRunButton: true },
           VRunUnlocks.all[7],
           VRunUnlocks.all[8],
-          { empty: true },
           {},
+          {}
         ]
         : [
           VRunUnlocks.all[0],
@@ -63,7 +63,7 @@ export default {
           VRunUnlocks.all[2],
           VRunUnlocks.all[4],
           VRunUnlocks.all[3],
-          {},
+          {}
         ];
     },
     vUnlock: () => VUnlocks.vAchievementUnlock,
@@ -120,7 +120,7 @@ export default {
     },
     startRun() {
       if (this.isDoomed) return;
-      Modal.celestials.show({ name: "V's", number: 3, celestial: V });
+      Modal.celestials.show({ name: "V's", number: 3 });
     },
     has(info) {
       return info.isUnlocked;
@@ -140,7 +140,6 @@ export default {
       if (!Currency.perkPoints.purchase(hex.reductionCost)) return;
       const steps = hex.config.reductionStepSize ? hex.config.reductionStepSize : 1;
       player.celestials.v.goalReductionSteps[hex.id] += steps;
-      AudioManagement.playSound("purchase_regular")
       for (const unlock of VRunUnlocks.all) {
         unlock.tryComplete();
       }
@@ -150,16 +149,14 @@ export default {
       return `Spend ${quantify("Perk Point", hex.reductionCost, 2, 0)}
         to reduce goal by ${format(hex.config.perReductionStep)}`;
     },
-    hexColor(hex,brightness) {
+    hexColor(hex) {
       const completions = hex.completions;
-      const hard = hex.isHard;
       const maxed = hex.config.values.length;
-      if (completions === maxed) return `rgb(${(hard?219:209)/brightness}, ${(hard?132:167)/brightness}, ${(hard?90:51)/brightness})`;
-      const r = 255 - (hard?0:10) * completions;
-      const g = 255 - (hard?20:13) * completions;
-      const b = 255 - (hard?30:30) * completions;
-      const l = 2-(Math.min(completions,6)/6)
-      return `rgb(${r/l/brightness},${g/l/brightness},${b/l/brightness})`;
+      if (completions === maxed) return "var(--color-v--base)";
+      const r = 255 - 5 * completions;
+      const g = 255 - 10 * completions;
+      const b = 255 - 20 * completions;
+      return `rgb(${r},${g},${b})`;
     },
     toggleFlipped() {
       player.celestials.v.wantsFlipped = !this.wantsFlipped;
@@ -176,20 +173,20 @@ export default {
     <CelestialQuoteHistory celestial="v" />
     <div
       v-if="!mainUnlock"
-      class="c-v-info-text c-v-unlock-container"
+      class="c-v-info-text"
     >
       <v-unlock-requirement
         v-for="req in mainUnlockDB"
         :key="req.name"
         :db-entry="req"
       />
-      <div class="l-v-milestones-grid__row l-v-milestones-grid__row_unlock">
+      <div class="l-v-milestones-grid__row">
         <div
           :class="celestialUnlockClassObject"
           @click="unlockCelestial"
         >
           <p>{{ vUnlock.description }}</p>
-          <i>{{ vUnlock.rewardText }}</i>
+          <p>{{ vUnlock.rewardText }}</p>
         </div>
       </div>
     </div>
@@ -247,40 +244,38 @@ export default {
           <div
             v-if="hex.config"
             class="l-v-hexagon c-v-unlock"
-            :class="{'c-v-unlock-hard':hex.isHard}"
-            :style="'--bg-dark: ' + hexColor(hex,1)+';--bg-bright: '+ hexColor(hex,3)"
+            :style="'background-color: ' + hexColor(hex)"
           >
-            <br v-if="hex.canBeReduced && showReduction">
             <p class="o-v-unlock-name">
-              {{ hex.config.name }}
+              <br v-if="hex.canBeReduced && showReduction">{{ hex.config.name }}
             </p>
             <p
               class="o-v-unlock-desc"
               v-html="hex.formattedDescription"
             />
-            <i
+            <p
               v-if="has(runMilestones[0][0]) && hex.isReduced"
               class="o-v-unlock-goal-reduction"
             >
               Goal has been {{ mode(hex) }} by {{ reductionValue(hex) }}
-          </i>
+            </p>
             <p class="o-v-unlock-amount">
               {{ formatInt(hex.completions) }}/{{ formatInt(hex.config.values.length) }} done
             </p>
             <div v-if="showRecord(hex)">
-              <i class="o-v-unlock-record">
+              <p class="o-v-unlock-record">
                 Best: {{ hex.config.formatRecord(runRecords[hex.id]) }}
-              </i>
+              </p>
               <p>
                 <GlyphSetPreview
                   :glyphs="runGlyphs[hex.id]"
                   :text="hex.config.name"
                   :text-hidden="true"
-                  :needsCrates="2"
-                  marginsize="0.2rem 0.4rem"
                 />
               </p>
-                <button  v-if="hex.canBeReduced && showReduction"
+              <div v-if="hex.canBeReduced && showReduction">
+                <div class="l-v-goal-reduction-spacer" />
+                <button
                   class="o-primary-btn l-v-reduction"
                   :class="{ 'o-primary-btn--disabled': !hex.canBeReduced || pp.lt(hex.reductionCost) }"
                   :ach-tooltip="reductionTooltip(hex)"
@@ -288,6 +283,7 @@ export default {
                 >
                   <i class="fas fa-angle-double-down" />
                 </button>
+              </div>
             </div>
           </div>
           <div
@@ -299,26 +295,25 @@ export default {
               class="o-v-start-text"
               :class="{ 'o-pelle-disabled': isDoomed }"
             >
-              <span v-if="isRunning">You are in <br></span>
-              <span v-else>{{ realityVerb }}</span>
-              {{ realityTitle }}
+              <span v-if="isRunning">You are in </span>
+              <span v-else>Start </span>
+              V's Reality.
             </b>
             <br>
-            <div :style="{ 'font-size': hasAlchemy ? '1.05rem' : '1.2rem'}">
+            <div :style="{ 'font-size': hasAlchemy ? '1.2rem' : '' }">
               {{ runDescription }}
             </div>
             <div class="c-v-run-button__line c-v-run-button__line--1" />
             <div class="c-v-run-button__line c-v-run-button__line--2" />
             <div class="c-v-run-button__line c-v-run-button__line--3" />
           </div>
-          <div v-else-if="hex.empty" class="l-v-hexagon c-v-empty"></div>
           <div v-else>
-            <div class="l-v-hexagon c-v-unlock l-placeholder-invisible" />
+            <div class="l-v-hexagon l-placeholder-invisible" />
           </div>
         </li>
       </div>
       <div class="c-v-info-text">
-        V-Achievements can only be completed within {{ realityTitle }}, but are permanent and do not reset upon leaving
+        V-Achievements can only be completed within V's Reality, but are permanent and do not reset upon leaving
         and re-entering the Reality.
       </div>
       <div class="c-v-info-text">
@@ -360,10 +355,7 @@ export default {
 
 <style scoped>
 .o-v-start-text {
-  font-size: 1.8rem;
-  line-height: 1.1;
-  font-family: cambria;
-  font-weight: bold;
+  font-size: 1.5rem;
 }
 
 .l-placeholder-invisible {
@@ -375,24 +367,6 @@ export default {
 }
 
 .l-cursed-glyph-creation {
-  --bg-bright: var(--color-effarig--base) !important;
-}
-.l-v-milestones-grid__row_unlock{
-  padding-top:1rem;
-  border-top:0.1rem solid;
-  border-image:linear-gradient(90deg,transparent,var(--color-text),transparent) 1
-}
-.l-v-milestones-grid__row_unlock .o-v-milestone{
-  width: 35rem;
-}
-.l-v-milestones-grid__row_unlock .o-v-milestone--unlocked{
-  color: var(--color-v--base);
-  --bg-bright: #000000;
-  --bg-dark: #5a4919;
-  --border: #c9bb6b;
-  box-shadow: var(--var-box-shadow, 0 0 1rem black inset, 0 0 0 0.2rem var(--border) inset, 0 0 1rem var(--border));
-}
-.l-v-milestones-grid__row_unlock .o-v-milestone--unlocked:hover{
-    --bg-dark: #af8d2f;
+  background: var(--color-effarig--base);
 }
 </style>

@@ -196,7 +196,7 @@ function galaxyReset() {
   // This is specifically reset here because the check is actually per-galaxy and not per-infinity
   player.requirementChecks.infinity.noSacrifice = true;
   EventHub.dispatch(GAME_EVENT.GALAXY_RESET_AFTER);
-  if (player.options.audio.softreset)AudioManagement.playSound("reset_galaxy",Math.log10(player.galaxies+1)+1)
+  if (player.options.audio.softreset)AudioManagement.playSound("reset_galaxy",Math.min(player.galaxies.add(1).log10().toNumber() + 1, 5))
 }
 
 export function manualRequestGalaxyReset(bulk) {

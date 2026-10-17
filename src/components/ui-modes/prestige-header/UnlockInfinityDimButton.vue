@@ -1,11 +1,6 @@
 <script>
-import FillBar from "@/components/FillBar";
-
 export default {
   name: "UnlockInfinityDimButton",
-  components: {
-    FillBar
-  },
   data() {
     return {
       isVisible: false,
@@ -34,8 +29,7 @@ export default {
       return {
         "o-prestige-button": true,
         "o-infinity-button": true,
-        "o-infinity-button--unavailable": !this.canUnlock,
-        "a-wobble-multi": this.wobbly
+        "o-infinity-button--unavailable": !this.canUnlock
       };
     },
   },
@@ -53,12 +47,7 @@ export default {
     },
     tryUnlockNextInfinityDimension() {
       InfinityDimensions.unlockNext();
-    },
-    Progress() {
-      const progress = !this.hasIPUnlock ? this.antimatter.add(1).log10() / this.amRequirement.add(1).log10() : Math.min((this.antimatter.add(1).log10() / this.amRequirement.add(1).log10())/2,0.5) + Math.min((this.infinitypoints.add(1).log10() / Math.log10(this.ipRequirement+1))/2,0.5);
-      if (progress > 1 || this.canUnlock) return `100%`;
-      return `${progress * 100}%`;
-    },
+    }
   },
 };
 </script>
@@ -70,12 +59,6 @@ export default {
     @click="tryUnlockNextInfinityDimension"
   >
     {{ text }}
-    <div class="o-fill-container">
-        <FillBar
-          class="o-fill-bar--infinity"
-          :width="dimensionProgress"
-        />
-    </div>
   </button>
 </template>
 

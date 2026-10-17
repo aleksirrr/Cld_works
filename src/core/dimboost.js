@@ -396,7 +396,7 @@ export function softReset(tempBulk, forcedADReset = false, forcedAMReset = false
     Currency.antimatter.reset();
   }
   EventHub.dispatch(GAME_EVENT.DIMBOOST_AFTER, bulk);
-  if (player.options.audio.softreset&&playaudio)AudioManagement.playSound("reset_boost",Math.log10(player.dimensionBoosts+1)/2+1)
+  if (player.options.audio.softreset&&playaudio)AudioManagement.playSound("reset_boost",Math.min(player.dimensionBoosts.add(1).log10().toNumber() / 2 + 1, 5))
 }
 
 export function skipResetsIfPossible(enteringAntimatterChallenge) {

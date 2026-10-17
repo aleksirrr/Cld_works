@@ -11,7 +11,7 @@ export default {
   },
   methods: {
     update() {
-      this.firstReality = player.realities <= 0
+      this.firstReality = player.realities.lte(0)
       this.isDoomed = Pelle.isDoomed;
       if (this.isDoomed) {
         const shards = Currency.realityShards.value;

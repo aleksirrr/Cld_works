@@ -1,22 +1,12 @@
 <script>
-import FillBar from "@/components/FillBar";
-
 export default {
   name: "ModernDimensionBoostRow",
-  components: {
-    FillBar
-  },
   data() {
     return {
       requirement: {
         tier: 1,
         amount: new Decimal(0)
       },
-      previousrequirement: {
-        tier: 1,
-        amount: 0
-      },
-      dimamount:0,
       isBuyable: false,
       purchasedBoosts: new Decimal(0),
       imaginaryBoosts: new Decimal(0),
@@ -32,9 +22,7 @@ export default {
   computed: {
     isDoomed: () => Pelle.isDoomed,
     dimName() {
-      if (player.options.naming.dimensions) return `${AntimatterDimension(this.requirement.tier).uniqueName}s 
-      (${AntimatterDimension(this.requirement.tier).shortDisplayName})`
-      return `${AntimatterDimension(this.requirement.tier).shortDisplayName} Antimatter D`;
+      return AntimatterDimension(this.requirement.tier).shortDisplayName;
     },
     boostCountText() {
       if (this.requirementText) return this.requirementText;
@@ -83,12 +71,6 @@ export default {
     dimensionBoost(bulk) {
       if (!DimBoost.requirement.isSatisfied || !DimBoost.canBeBought) return;
       manualRequestDimensionBoost(bulk);
-    },
-    fillProgress() {
-      let normalFill = `${Math.max((this.dimamount-this.previousrequirement.amount) / (this.requirement.amount-this.previousrequirement.amount),0)*100}%`;
-      if (NormalChallenge(8).isRunning) return player.dimensionBoosts >= (InfinityChallenge(1).isRunning?2:5) ? "0%" : normalFill
-      if (Ra.isRunning) return player.dimensionBoosts >= 4 ? "0%" : normalFill
-      return normalFill
     }
   }
 };
@@ -104,27 +86,11 @@ export default {
       @click.exact="dimensionBoost(true)"
       @click.shift.exact="dimensionBoost(false)"
     >
-    <div style="z-index: 1;position: relative;">{{ unlockedByBoost }}</div>
+      {{ unlockedByBoost }}
       <div
         v-if="hasTutorial"
         class="fas fa-circle-exclamation l-notification-icon"
       />
-      <div class="o-fill-container o-fill-container-full">
-          <FillBar
-          class="o-fill-bar--dimboost"
-          :width="fillwidth"
-          />
-      </div>
     </button>
   </div>
 </template>
-<style scoped>
-.o-fill-container-full{
-  opacity:1
-}
-.o-fill-bar--dimboost {
-  box-shadow: var(--var-box-shadow, 0 0 1rem #ffffff44 inset);
-  background: linear-gradient(transparent -25%,#00ee0044 200%);
-  transition-duration:0.1s
-}
-</style>

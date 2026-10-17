@@ -1,5 +1,4 @@
 <script>
-import { EternityChallenge } from "../../core/eternity-challenge";
 import FailableEcText from "./FailableEcText";
 import PrimaryButton from "@/components/PrimaryButton";
 
@@ -36,9 +35,6 @@ export default {
       function celestialReality(celestial, name, tab) {
         return {
           name: () => `${name} Reality`,
-          newname: () => `the ${newname} ${celestial==Laitela?Laitela.LevelName[Laitela.difficultyTier]:""}`,
-          bracket: () => `(${celestial.symbol})`,
-          html: () => `<span class="c-challenge-text c-challenge-text--reality">`,
           isActive: token => token,
           activityToken: () => celestial.isRunning && (!Effarig.isRunning || Effarig.currentStage !== EFFARIG_STAGES.ENDGAME),
           tabName: () => tab,
@@ -94,17 +90,11 @@ export default {
         },
         {
           name: token => `Eternity Challenge ${token}`,
-          newname: token => `${EternityChallenge(token).name}`,
-          bracket: token => `(Δ${token})`,
-          html: () => `<span class="c-challenge-text c-challenge-text--eternity">`,
           isActive: token => token > 0,
           activityToken: () => player.challenge.eternity.current
         },
         {
           name: token => `Infinity Challenge ${token}`,
-          newname: token => `${InfinityChallenge(token).name}`,
-          bracket: token => `(∞${token})`,
-          html: () => `<span class="c-challenge-text c-challenge-text--infinity">`,
           isActive: token => token > 0,
           activityToken: () => player.challenge.infinity.current
         },
@@ -121,7 +111,6 @@ export default {
         const token = this.activityTokens[i];
         const part = this.parts[i];
         if (!part.isActive(token)) continue;
-        const type = part.name(token).includes("Reality") ? this.celNaming : this.naming
         if (part.name(token).includes("Eternity Challenge")) {
           const currEC = player.challenge.eternity.current;
           const nextCompletion = EternityChallenge(currEC).completions + 1;
@@ -133,34 +122,9 @@ export default {
           } else {
             completionText = `(${formatInt(nextCompletion)}/${formatInt(5)})`;
           }
-          names.push(`${this.naming?part.html()+part.name(token)+"</span>":part.html()+part.newname(token)+" "+part.bracket(token)+"</span>"} ${completionText}`);
+          names.push(`${part.name(token)} ${completionText}`);
         } else {
-          names.push(type?part.html()+part.name(token)+"</span>":part.html()+part.newname(token)+" "+part.bracket(token)+"</span>");
-        }
-      }
-      return names;
-    },
-    activeChallengeNamesnonHTML() {
-      const names = [];
-      for (let i = 0; i < this.activityTokens.length; i++) {
-        const token = this.activityTokens[i];
-        const part = this.parts[i];
-        if (!part.isActive(token)) continue;
-        const type = part.name(token).includes("Reality") ? this.celNaming : this.naming
-        if (part.name(token).includes("Eternity Challenge")) {
-          const currEC = player.challenge.eternity.current;
-          const nextCompletion = EternityChallenge(currEC).completions + 1;
-          let completionText = "";
-          if (Enslaved.isRunning && currEC === 1) {
-            completionText = `(${formatInt(nextCompletion)}/???)`;
-          } else if (nextCompletion === 6) {
-            completionText = `(already completed)`;
-          } else {
-            completionText = `(${formatInt(nextCompletion)}/${formatInt(5)})`;
-          }
-          names.push(`${this.naming?part.name(token):part.newname(token)} ${completionText}`);
-        } else {
-          names.push(type?part.name(token):part.newname(token));
+          names.push(part.name(token));
         }
       }
       return names;
@@ -169,7 +133,7 @@ export default {
       return this.infinityUnlocked || this.activeChallengeNames.length > 0;
     },
     isInFailableEC() {
-      return this.activeChallengeNames.some(str => str.match(this.naming ? /Eternity Challenge (4|12)/gu :  /Curtailed Abundance|Ephemerality/gu ));
+      return this.activeChallengeNames.some(str => str.match(/Eternity Challenge (4|12)/gu));
     },
     challengeDisplay() {
       if (this.inPelle) {
@@ -179,12 +143,9 @@ export default {
         return `${this.activeChallengeNames.join(" + ")}. Not every story has a good ending.`;
       }
       if (this.activeChallengeNames.length === 0) {
-        return `<span class="c-challenge-text c-challenge-text--antimatter">the Antimatter Universe</span> (no active challenges)`;
+        return "the Antimatter Universe (no active challenges)";
       }
       return this.activeChallengeNames.join(" + ");
-    },
-    truechallengeDisplay() {
-    return "You are currently in " + this.challengeDisplay
     },
   },
   methods: {
@@ -224,7 +185,7 @@ export default {
       if (Player.isInAnyChallenge) {
         // Regex replacement is used to remove the "(X/Y)" which appears after ECs. The ternary statement is there
         // because this path gets called for NCs, ICs, and ECs
-        const toExit = this.activeChallengeNamesnonHTML[this.activeChallengeNames.length - 1].replace(/\W+\(.*\)/u, "");
+        const toExit = this.activeChallengeNames[this.activeChallengeNames.length - 1].replace(/\W+\(.*\)/u, "");
         names = { chall: toExit, normal: isEC ? "Eternity" : "Infinity" };
         clickFn = () => {
           const oldChall = Player.anyChallenge;
@@ -306,13 +267,12 @@ export default {
   <div
     v-if="isVisible"
     class="l-game-header__challenge-text"
-    :style="{'opacity':fade}"
   >
     <span
       :class="textClassObject()"
       @click="textClicked"
-      v-html="truechallengeDisplay"
     >
+      You are currently in {{ challengeDisplay }}
     </span>
     <FailableEcText v-if="isInFailableEC" />
     <span class="l-padding-line" />
@@ -341,7 +301,6 @@ export default {
 .l-challenge-display {
   padding: 0.5rem;
   cursor: default;
-  font-style:italic
 }
 
 .l-challenge-display--clickable {

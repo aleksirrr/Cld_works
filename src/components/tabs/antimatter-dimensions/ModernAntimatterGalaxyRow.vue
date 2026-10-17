@@ -1,11 +1,6 @@
 <script>
-import FillBar from "@/components/FillBar";
-
 export default {
   name: "ModernAntimatterGalaxyRow",
-  components: {
-    FillBar
-  },
   data() {
     return {
       type: GALAXY_TYPE.NORMAL,
@@ -20,11 +15,6 @@ export default {
         tier: 1,
         amount: 0
       },
-      previousrequirement: {
-        tier: 1,
-        amount: 0
-      },
-      dimamount:0,
       canBeBought: false,
       distantStart: 0,
       remoteStart: 0,
@@ -42,9 +32,7 @@ export default {
   computed: {
     isDoomed: () => Pelle.isDoomed,
     dimName() {
-      if (player.options.naming.dimensions) return `${AntimatterDimension(this.requirement.tier).uniqueName}s 
-      (${AntimatterDimension(this.requirement.tier).shortDisplayName})`
-      return `${AntimatterDimension(this.requirement.tier).shortDisplayName} Antimatter D`;
+      return AntimatterDimension(this.requirement.tier).shortDisplayName;
     },
     buttonText() {
       if (this.lockText !== null) return this.lockText;
@@ -101,7 +89,7 @@ export default {
           ];
           return `Increased Galaxy cost scaling: ${scalings.sort((a, b) => a.amount - b.amount)
             .map(scaling => `${scaling.function} scaling past ${this.formatGalaxies(scaling.amount)} (${scaling.type})`)
-            .join(", <br>").capitalize()}`;
+            .join(", ").capitalize()}`;
         }
       }
       return undefined;
@@ -126,14 +114,12 @@ export default {
       const requirement = Galaxy.requirement;
       this.requirement.amount = requirement.amount;
       this.requirement.tier = requirement.tier;
-      this.previousrequirement.amount = player.galaxies>0?Galaxy.requirementAt(player.galaxies-1).amount:0;
       this.canBeBought = requirement.isSatisfied && Galaxy.canBeBought;
       this.distantStart = EternityChallenge(5).isRunning ? 0 : Galaxy.costScalingStart;
       this.remoteStart = Galaxy.remoteStart;
       this.lockText = Galaxy.lockText;
       this.canBulkBuy = EternityMilestone.autobuyMaxGalaxies.isReached;
       this.creditsClosed = GameEnd.creditsEverClosed;
-      this.dimamount = Laitela.continuumUnlocked&&Laitela.continuumActive?AntimatterDimension(this.requirement.tier).continuumAmount:AntimatterDimension(this.requirement.tier).bought
       if (this.isDoomed) {
         this.scalingText = {
           distant: this.formatGalaxies(this.distantStart),
@@ -150,11 +136,6 @@ export default {
     formatGalaxies(num) {
       return new Decimal(num).gt(1e8) ? format(num, 2) : formatInt(num);
     },
-    fillProgress() {
-      let normalFill = `${Math.max(((this.dimamount-this.previousrequirement.amount) / (this.requirement.amount-this.previousrequirement.amount)),0)*100}%`;
-      if (NormalChallenge(8).isRunning||InfinityChallenge(7).isRunning||EternityChallenge(6).isRunning) return "0%"
-      return normalFill
-    }
   }
 };
 </script>
@@ -169,27 +150,11 @@ export default {
       @click.exact="buyGalaxy(true)"
       @click.shift.exact="buyGalaxy(false)"
     >
-    <div style="z-index: 1;position: relative;">{{ buttonText }}</div>
+      {{ buttonText }}
       <div
         v-if="hasTutorial"
         class="fas fa-circle-exclamation l-notification-icon"
       />
-      <div class="o-fill-container o-fill-container-full">
-          <FillBar
-          class="o-fill-bar--galaxy"
-          :width="fillwidth"
-        />
-      </div>
     </button>
   </div>
 </template>
-<style scoped>
-.o-fill-container-full{
-  opacity:1
-}
-.o-fill-bar--galaxy {
-  background: linear-gradient(transparent -25%,var(--color-celestials) 300%);
-  box-shadow: var(--var-box-shadow, 0 0 1rem #ffffff44 inset);
-  transition-duration:0.1s
-}
-</style>
