@@ -14603,3 +14603,9 @@ input.o-automator-block-input {
   --shadow: var(--color-pelle--base);
   color:var(--color-pelle--base)
 }
+/* Narrow (phone) layout: the 8-wide achievement grid needs ~115rem, so shrink it to fit */
+@media (max-width: 950px) {
+  .l-achievement-grid {
+    zoom: 0.68;
+  }
+}
