@@ -35,14 +35,14 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
     await page.evaluate(([t, s]) => { try { Modal.hideAll(); } catch (e) {} ui.view.tab = t; ui.view.subtab = s; }, [tab, sub]);
     await page.waitForTimeout(1500);
     const r = await page.evaluate(() => {
-      const se = document.scrollingElement; se.scrollTo(0, 1e6);
+      const se = document.getElementById("ui"); se.scrollTo(0, 1e6);
       const bar = document.getElementById("mkbar"); const tab = document.querySelector(".c-game-tab");
       const rect = (e) => { if (!e) return null; const b = e.getBoundingClientRect(); return [Math.round(b.top), Math.round(b.bottom), Math.round(b.left), Math.round(b.right)]; };
       const kids = tab ? [...tab.querySelectorAll("*")].filter((e) => e.getBoundingClientRect().height > 20 && getComputedStyle(e).display !== "none") : [];
       const maxBottom = Math.max(0, ...kids.map((e) => e.getBoundingClientRect().bottom));
       const ov = (e) => { const c = getComputedStyle(e); return c.overflowY + "/" + c.height + "/pos:" + c.position; };
       const chain = []; let e = tab; while (e && chain.length < 8) { chain.push(e.tagName.toLowerCase() + "#" + e.id + "." + String(e.className).slice(0, 20) + " " + ov(e) + " sh=" + e.scrollHeight + " ch=" + e.clientHeight); e = e.parentElement; }
-      return { innerH: innerHeight, innerW: innerWidth, vv: window.visualViewport ? [window.visualViewport.height, window.visualViewport.scale] : null, scrollY: Math.round(se.scrollTop), scrollH: se.scrollHeight, bar: rect(bar), tab: rect(tab), maxContentBottom: Math.round(maxBottom), zoom: tab && tab.style.zoom, chain };
+      return { innerH: innerHeight, innerW: innerWidth, vv: window.visualViewport ? [window.visualViewport.height, window.visualViewport.scale] : null, scrollY: Math.round(se.scrollTop), scrollH: se.scrollHeight, bar: rect(bar), tab: rect(tab), maxContentBottom: Math.round(maxBottom), uiSpacer: getComputedStyle(document.getElementById("ui"), "::after").height + "/" + getComputedStyle(document.getElementById("ui"), "::after").content, hasPadClass: document.body.classList.contains("mk-pad"), zoom: tab && tab.style.zoom, chain };
     });
     report.push(tab + "/" + sub + " " + JSON.stringify(r));
     await shot(tab + "-" + sub);
