@@ -91,7 +91,11 @@ Vue.mixin({
     quantify,
     quantifyInt,
     quantifyHybridSmall,
-    quantifyHybridLarge
+    quantifyHybridLarge,
+    // Legendary templates call this to mark values that are "inaccessible"
+    isInaccessible(value) {
+      return isInaccessible(value);
+    }
   }
 });
 
