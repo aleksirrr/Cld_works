@@ -2,6 +2,20 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <script>
+      // The game UI is laid out in rem and needs roughly 640 CSS px of width.
+      // On narrow phones render at 640 px and let the browser scale it down to fit.
+      (function () {
+        try {
+          var w = Math.min(screen.width, screen.height) < 600 || window.innerWidth < 600;
+          if (w) {
+            document.querySelector('meta[name=viewport]').setAttribute(
+              'content', 'width=640, initial-scale=' + (Math.min(window.screen.width, window.innerWidth || 9999) / 640) + ', viewport-fit=cover');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>html,body{-webkit-text-size-adjust:none;text-size-adjust:none;overflow-x:hidden}</style>
   <meta charset="utf-8">
   <title>Antimatter Dimensions: Endgame + Legendary</title>
   <link rel="icon" type="image/png" href="icon.png">
