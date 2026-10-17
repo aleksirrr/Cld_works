@@ -1,0 +1,59 @@
+name: Diagnose challenges
+
+# Temporary helper: builds the game(s), opens them in Chrome and reports what happens as annotations.
+on:
+  push:
+    branches: [diagnose2]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: merged
+            repo: ''
+            ref: ''
+          - name: endgame
+            repo: supersonic-seven/AntimatterDimensionsEndgameUpdate
+            ref: b792bfae0150126a0fe8e6056fa05af3ce7ac5d4
+          - name: legendary
+            repo: krutamason/ADLegendary
+            ref: 669fb66e2e1eac0f435eec3e8b3076ef1196d621
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tool
+      - uses: actions/checkout@v4
+        if: matrix.repo != ''
+        with:
+          repository: ${{ matrix.repo }}
+          ref: ${{ matrix.ref }}
+          path: target
+      - name: Choose build directory
+        run: |
+          if [ -d target ]; then echo "TARGET=target" >> "$GITHUB_ENV"; else echo "TARGET=tool" >> "$GITHUB_ENV"; fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '14'
+      - run: npm ci
+        working-directory: ${{ env.TARGET }}
+      - run: npm run build:release
+        working-directory: ${{ env.TARGET }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install playwright-core (uses the Chrome already on the runner)
+        run: |
+          mkdir -p /tmp/probe && cd /tmp/probe && npm init -y >/dev/null
+          npm i playwright-core@1.48.2 source-map@0.7.4 --no-audit --no-fund
+      - name: Load the built game in Chrome
+        working-directory: ${{ env.TARGET }}
+        env:
+          PROBE_NAME: ${{ matrix.name }}
+        run: NODE_PATH=/tmp/probe/node_modules node ${{ github.workspace }}/tool/.github/diagnose/chall.js
