@@ -16,6 +16,7 @@ export const infinityChallenges = [
   },
   {
     id: 2,
+    label: "Persistent Purge",
     description: () => `Dimensional Sacrifice happens automatically every ${formatInt(400)}
       milliseconds ${Slabdrill.isCursed ? "and it functions like a Dimension Boost reset without the boost." :
       `once you have an 8th ${player.universes.current === 2 ? "Matter" : "Antimatter"} Dimension.`}`,
@@ -69,6 +70,7 @@ export const infinityChallenges = [
   },
   {
     id: 5,
+    label: "Financial Blasphemy",
     description: () =>
       Slabdrill.isCursed ? `Antimatter Dimension and Tickspeed cost scaling is massively increased.` :
       `buying ${player.universes.current === 2 ? "Matter" : "Antimatter"} Dimensions 1-4 causes all cheaper ${player.universes.current === 2 ? "MD" : "AD"} costs to increase.
@@ -87,6 +89,7 @@ export const infinityChallenges = [
   },
   {
     id: 6,
+    label: "Subatomic Heresy",
     description: () => Slabdrill.isCursed ? `exponentially rising matter divides the multiplier of your Antimatter Dimension.` :
       `exponentially rising ${player.universes.current === 2 ? "antimatter" : "matter"} divides the multiplier on all of your ${player.universes.current === 2 ? "Matter" : "Antimatter"} Dimensions
       once you have at least ${formatInt(1)} 2nd ${player.universes.current === 2 ? "Matter" : "Antimatter"} Dimension.`,
