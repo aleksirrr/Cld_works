@@ -15,6 +15,23 @@
         } catch (e) {}
       })();
     </script>
+    <script>
+      // Auto-fit: on narrow screens, shrink whichever tab is open so that it never
+      // exceeds the available width (works for any tab, including future additions).
+      // Reset + measure + set happen in one task, so there is no visible flicker.
+      setInterval(function () {
+        try {
+          var el = document.querySelector('.c-game-tab');
+          if (!el) return;
+          el.style.zoom = '';
+          if (window.innerWidth >= 1100) return;
+          var sb = document.querySelector('.c-modern-sidebar');
+          var avail = document.documentElement.clientWidth - (sb ? sb.offsetWidth : 0) - 8;
+          var need = Math.max(el.scrollWidth, el.offsetWidth);
+          if (need > avail) el.style.zoom = Math.max(0.4, avail / need);
+        } catch (e) {}
+      }, 400);
+    </script>
     <style>html,body{-webkit-text-size-adjust:none;text-size-adjust:none;overflow-x:hidden}</style>
   <meta charset="utf-8">
   <title>Antimatter Dimensions: Endgame + Legendary</title>
