@@ -49,12 +49,13 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
     for (const tab of window.Tabs.all) if (/challenge/i.test(String(tab.config.key || tab.config.id))) for (const sub of (tab.subtabs || [])) subs.push([String(sub.config.key || sub.config.id), sub]);
     res.found = subs.map((x) => x[0]);
     for (const [k, sub] of subs) {
-      await t("show " + k, () => sub.show(true));
+      await t("show " + k, () => { try { Modal.hideAll(); } catch (e) {} ui.view.tab = "challenges"; ui.view.subtab = k; });
       await sleep(1500);
       const grid = document.querySelector(".l-challenge-grid");
       const cells = [...document.querySelectorAll(".l-challenge-grid__cell")];
       const r = (e) => { if (!e) return null; const b = e.getBoundingClientRect(); return [Math.round(b.x), Math.round(b.y), Math.round(b.width), Math.round(b.height)]; };
       res.tabs[k] = {
+        viewTab: ui.view.tab + "/" + ui.view.subtab, quoteOpen: (() => { try { return Quote.isOpen; } catch (e) { return "?"; } })(),
         isAvailable: (() => { try { return sub.isAvailable; } catch (e) { return "?"; } })(),
         hasGrid: !!grid, gridRect: r(grid), cells: cells.length,
         displayed: cells.filter((c) => getComputedStyle(c).display !== "none").length,
