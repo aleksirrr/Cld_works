@@ -1,12 +1,6 @@
 <script>
-import FillBar from "@/components/FillBar";
-import { EternityChallenge } from "../../../core/eternity-challenge";
-
 export default {
   name: "EternityButton",
-  components: {
-    FillBar
-  },
   data() {
     return {
       isVisible: false,
@@ -24,11 +18,9 @@ export default {
       failedRestriction: undefined,
       hasMoreCompletions: false,
       nextGoalAt: new Decimal(0),
-      nextGoalAtminus: new Decimal(0),
       canEternity: false,
       eternityGoal: new Decimal(0),
       hover: false,
-      wobbly: false,
       headerTextColored: true,
       creditsClosed: false,
       showEPRate: false,
@@ -43,7 +35,6 @@ export default {
         "o-eternity-button--dilation": this.isDilation,
         "o-eternity-button--unavailable": !this.canEternity,
         "o-pelle-disabled-pointer": this.creditsClosed,
-        "a-wobble-multi": this.wobbly
       };
     },
     // Show EP/min below this threshold, color the EP number above it (1e40 is roughly when TS181 is attainable)
@@ -53,7 +44,7 @@ export default {
         "transition-duration": "0s"
       };
       if (this.hover) return {
-        //color: "black",
+        color: "black",
         "transition-duration": "0.2s"
       };
 
@@ -116,21 +107,14 @@ export default {
   },
   methods: {
     update() {
-      this.wobbly = player.options.animations.wobbly
       this.isVisible = Player.canEternity ||
         EternityMilestone.autoUnlockID.isReached || InfinityDimension(8).isUnlocked;
       this.isDilation = player.dilation.active;
       if (!this.isVisible) return;
       this.canEternity = Player.canEternity;
       this.eternityGoal.copyFrom(Player.eternityGoal);
-      this.currentIP.copyFrom(Currency.infinityPoints);
       this.headerTextColored = player.options.headerTextColored;
-      this.CompletionWidth = this.ChallengeProgress()
-      this.BulkCompletionWidth = this.BulkChallengeProgress()
-      this.isInEC12 = EternityChallenge(12).isRunning;
-      this.currentDuration = Time.thisEternity.totalSeconds;
-      this.maximumDuration = EternityChallenge(12).config.restriction(EternityChallenge(12).completions)
-      if (this.isInEC12) this.dangerWidth = this.DangerProgress();
+
       if (!this.canEternity) {
         this.type = EP_BUTTON_DISPLAY_TYPE.CANNOT_ETERNITY;
         return;
@@ -150,6 +134,7 @@ export default {
         this.updateChallengeWithRUPG();
         return;
       }
+
       const gainedEP = gainedEternityPoints();
       this.currentEP.copyFrom(Currency.eternityPoints);
       this.gainedEP.copyFrom(gainedEP);
@@ -164,6 +149,7 @@ export default {
         this.gainedTachyons.copyFrom(getTachyonGain(true));
         return;
       }
+
       this.type = hasNewContent
         ? EP_BUTTON_DISPLAY_TYPE.NORMAL_EXPLORE_NEW_CONTENT
         : EP_BUTTON_DISPLAY_TYPE.NORMAL;
@@ -212,10 +198,6 @@ const EP_BUTTON_DISPLAY_TYPE = {
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
-  <div style="z-index: 1;position: relative;">
-    <template v-if="type >= 1">
-      <div class="o-prestige-description">Go Eternal</div>
-    </template>
     <!-- Cannot Eternity -->
     <template v-if="type === -1">
       Reach {{ format(eternityGoal, 2, 2) }}
@@ -230,15 +212,17 @@ const EP_BUTTON_DISPLAY_TYPE = {
 
     <!-- Normal -->
     <template v-else-if="type === 1">
-      Gain
+      Eternity for
       <span :style="amountStyle">{{ format(gainedEP, 2) }}</span>
       <span v-if="showEPRate"> EP</span>
-      <span v-else><br> Eternity {{ pluralize("Point", gainedEP) }}</span>
+      <span v-else> Eternity {{ pluralize("Point", gainedEP) }}</span>
       <br>
       <template v-if="showEPRate">
         Current: {{ format(currentEPRate, 2, 2) }} EP/min
         <br>
-        Peak: {{ format(peakEPRate, 2, 2) }} EP/min at {{ format(peakEPRateVal, 2, 2) }} EP
+        Peak: {{ format(peakEPRate, 2, 2) }} EP/min
+        <br>
+        at {{ format(peakEPRateVal, 2, 2) }} EP
       </template>
     </template>
 
@@ -249,17 +233,17 @@ const EP_BUTTON_DISPLAY_TYPE = {
 
     <!-- Dilation -->
     <template v-else-if="type === 3">
-      Gain <span :style="tachyonAmountStyle">{{ format(gainedTachyons, 2, 1) }}</span>
-      {{ pluralize("Tachyon", gainedTachyons) }}
+      Eternity for <span :style="tachyonAmountStyle">{{ format(gainedTachyons, 2, 1) }}</span>
+      {{ pluralize("Tachyon Particle", gainedTachyons) }}
     </template>
 
     <!-- New content available -->
     <template v-else-if="type === 4 || type === 5">
       <template v-if="type === 4">
-        Gain <span :style="amountStyle">{{ format(gainedEP, 2, 2) }}</span> EP
+        Eternity for <span :style="amountStyle">{{ format(gainedEP, 2, 2) }}</span> EP
       </template>
       <template v-else>
-        Gain <span :style="tachyonAmountStyle">{{ format(gainedTachyons, 2, 1) }}</span> Tachyons
+        Eternity for <span :style="tachyonAmountStyle">{{ format(gainedTachyons, 2, 1) }}</span> TP
       </template>
       <br>
       You should explore a bit and look at new content before clicking me!
@@ -270,7 +254,7 @@ const EP_BUTTON_DISPLAY_TYPE = {
       Other challenges await...
       <template v-if="fullyCompleted">
         <br>
-        ( Already fully completed )
+        (This challenge is already fully completed)
       </template>
       <template v-else>
         <br>
@@ -284,40 +268,7 @@ const EP_BUTTON_DISPLAY_TYPE = {
           Next goal at {{ format(nextGoalAt) }} IP
         </template>
       </template>
-    </template></div>
-    <div class="o-fill-container">
-        <template v-if="type === -1">
-          <FillBar
-          class="o-fill-bar--eternity"
-          :class="{ 'o-fill-bar--dilated': isDilation }"
-          :width="CompletionWidth"
-          style="position: absolute;"
-          />
-        </template>
-        <template v-if="type === 1">
-          <FillBar
-          v-if="autobuyer.isActive"
-          class="o-fill-bar--eternity"
-          :width="autobuyerWidth"
-          style="position: absolute;transition-duration:0.05s"
-          />
-        </template>
-        <template v-if="type === 6">
-          <FillBar
-          v-if="!fullyCompleted"
-          class="o-fill-bar--eternity"
-          :class="{ 'o-fill-bar--dilated': isDilation }"
-          :width="BulkCompletionWidth"
-          style="position: absolute;"
-          />
-        </template>
-        <FillBar
-          v-if="isInEC12"
-          class="o-fill-bar--red"
-          :width="dangerWidth"
-          style="position: absolute;"
-        />
-    </div>
+    </template>
   </button>
 
   <button
@@ -333,15 +284,5 @@ const EP_BUTTON_DISPLAY_TYPE = {
 </template>
 
 <style scoped>
-.o-prestige-button:hover>.o-fill-container>.o-fill-bar--eternity{
-  background: linear-gradient(transparent -100%, var(--color-text) 300%);
-}
-.o-fill-bar--red {
-  background: url(../../../../public/images/upgrades/ec-red.png),linear-gradient(transparent -100%, var(--color-bad) 200%);
-  animation: a-possible 2s linear infinite;
-  box-shadow: var(--var-box-shadow, 0 0 .5rem #ffffff inset, 0 0 1rem red inset);
-}
-.o-prestige-button:hover>.o-fill-container>.o-fill-bar--dilated{
-  background: linear-gradient(transparent -100%,white 300%);
-}
+
 </style>

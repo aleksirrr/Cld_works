@@ -17,7 +17,6 @@ export default {
       dilationUnlocked: false,
       tachyonsUnlocked: false,
       realityUnlocked: false,
-      celestialsUnlocked: false,
       animatedThemeUnlocked: false,
       alphaUnlocked: false,
       etherealExtended: false,
@@ -27,9 +26,9 @@ export default {
       dilation: false,
       tachyonParticles: false,
       reality: false,
-      celreality: false,
       background: false,
       blobSnowflakes: 16,
+      isS11Active: false,
       isBlackHoleUnlocked: false,
       blobHole: false,
       isS11Unlocked: false,
@@ -67,9 +66,6 @@ export default {
     },
     reality(newValue) {
       player.options.animations.reality = newValue;
-    },
-    celreality(newValue) {
-      player.options.animations.celreality = newValue;
     },
     background(newValue) {
       player.options.animations.background = newValue;
@@ -113,7 +109,6 @@ export default {
       this.dilation = options.dilation;
       this.tachyonParticles = options.tachyonParticles;
       this.reality = options.reality;
-      this.celreality = options.celreality;
       this.background = options.background;
       this.blobSnowflakes = options.blobSnowflakes;
       this.blobHole = options.blobHole;
@@ -136,10 +131,6 @@ export default {
     </template>
     <div class="c-modal-options__button-container">
       <ModalOptionsToggleButton
-        v-model="wobbly"
-        text="Wobbles:"
-      />
-      <ModalOptionsToggleButton
         v-if="infinityUnlocked"
         v-model="bigCrunch"
         text="Big Crunch:"
@@ -157,17 +148,12 @@ export default {
       <ModalOptionsToggleButton
         v-if="tachyonsUnlocked"
         v-model="tachyonParticles"
-        text="Tachyons:"
+        text="Tachyon particles:"
       />
       <ModalOptionsToggleButton
         v-if="realityUnlocked"
         v-model="reality"
         text="Reality:"
-      />
-      <ModalOptionsToggleButton
-        v-if="celestialsUnlocked"
-        v-model="celreality"
-        text="Celestial Reality:"
       />
       <ModalOptionsToggleButton
         v-if="isS11Unlocked && isBlackHoleUnlocked"

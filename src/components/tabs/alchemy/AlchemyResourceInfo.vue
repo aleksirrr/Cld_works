@@ -25,11 +25,14 @@ export default {
     };
   },
   computed: {
+    classObject() {
+      return {
+        "c-alchemy-resource-info": true,
+        "c-alchemy-resource-info--locked": !this.isUnlocked
+      };
+    },
     reaction() {
       return this.resource.reaction;
-    },
-    tier() {
-      return this.resource.config.tier;
     },
     isBaseResource() {
       return this.resource.isBaseResource;
@@ -75,7 +78,6 @@ export default {
     update() {
       const resource = this.resource;
       this.amount = resource.amount;
-      this.color = resource._config.color;
       this.cap = resource.cap;
       this.capped = resource.capped;
       this.flow = resource.flow;
@@ -91,99 +93,37 @@ export default {
 </script>
 
 <template>
-  <div 
-  class="c-alchemy-resource-info"
+  <div
+    v-if="isUnlocked"
+    :class="classObject"
   >
-    <div 
-      v-if="isUnlocked"
-      class="c-alchemy-resource-info__inner"
-      :style="{'--base':color}"
-    >
-      <div class="l-resource-component__container">
-        <div class="l-resource-component" 
-        :style="[colorStyle, {'--crate-posx': crateStyle}]"
-        >
-          <div style="padding-bottom: 0.3rem;">{{ resource.symbol }}</div>
-        </div>
-      </div>
-      <span class="c-alchemy-resource-info__title">
-        {{ resource.symbol }} <span class="c-alchemy-resource-info__name">{{ resource.name }}</span> {{ resource.symbol }}
-      </span>
-      <div class="c-alchemy-resource-info__tier">
-        <span 
-          v-for="i in tier"
-          :key="i"
-        >★</span>
-        <br> Tier {{ tier }}
-      </div>
-      <div class="c-alchemy-resource-info__description">
-      <span v-if="isBaseResource">Base Resource</span>
-      <span v-else>Reaction: {{ isReactionActive ? "Active" : "Inactive" }} ({{ reactionText }})</span>
-      <span v-if="isDoomed"> Destroyed by Pelle </span>
-      <span v-else>
-        {{ capped ? "Capped" : "Current" }}: {{ resourceAmount }} / {{ resourceCap }}
-        (Recent change: <span v-html="formattedFlow" />)
-      </span>
-      <span :class="{ 'o-pelle-disabled': isDoomed }">
-        <EffectDisplay
-          label="Effect"
-          :config="effectConfig"
-        />
-      </span>
-    </div>
-    </div>
-    <div 
-      v-else 
-      class="c-alchemy-resource-info__inner"
-    >
-      <div class="l-resource-component__container">
-       <div class="l-resource-component" :style="colorStyle">
-         <div style="padding-top: 0.3rem;">?</div>
-        </div>
-      </div>
-      <span class="c-alchemy-resource-info__title">
-        <span class="c-alchemy-resource-info__name">{{ resource.name.replace(/[a-zA-Z0-9-]/gu, "?") }}</span>
-      </span>
-      <div class="c-alchemy-resource-info__tier">
-        <span 
-          v-for="i in tier"
-          :key="i"
-        >★</span>
-        <br> Tier {{ tier }}
-      </div>
-      <div class="c-alchemy-resource-info__description c-alchemy-resource-info__description-locked">
-        Unlock requirement: {{ unlockRequirement }}
-      </div>
-    </div>
+    <span class="c-alchemy-resource-info__title">
+      {{ resource.symbol }} {{ resource.name }} {{ resource.symbol }}
+    </span>
+    <span v-if="isDoomed">
+      Destroyed by Pelle
+    </span>
+    <span v-else>
+      {{ capped ? "Capped" : "Current" }}: {{ resourceAmount }}/{{ resourceCap }}
+      (Recent change: <span v-html="formattedFlow" />)
+    </span>
+    <span v-if="isBaseResource">Base Resource</span>
+    <span v-else>Reaction: {{ isReactionActive ? "Active" : "Inactive" }} ({{ reactionText }})</span>
+    <span :class="{ 'o-pelle-disabled': isDoomed }">
+      <EffectDisplay
+        label="Effect"
+        :config="effectConfig"
+      />
+    </span>
+  </div>
+  <div
+    v-else
+    :class="classObject"
+  >
+    Unlock requirement: {{ unlockRequirement }}
   </div>
 </template>
 
 <style scoped>
-.c-alchemy-resource-info__name {
-  font-family: cambria;
-  font-size: 1.75rem;
-  line-height: 1.2
-}
-.c-alchemy-resource-info__description {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: center;
-  text-align: center;
-}
-.c-alchemy-resource-info__description-locked{
-  color: var(--base);
-  font-size: 2rem;
-  font-weight: bold;
-  font-family: cambria;
-}
-.c-alchemy-resource-info__tier{
-  opacity: 0.5;
-  position: absolute;
-  text-align: right;
-  top: 0;
-  right: 0;
-  line-height: 1;
-  margin-right: 0.5rem;
-}
+
 </style>

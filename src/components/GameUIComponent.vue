@@ -11,11 +11,6 @@ import S12UiFixed from "@/components/ui-modes/s12/S12UiFixed";
 
 export default {
   name: "GameUIComponent",
-  data() {
-    return {
-      inCursedCore: false
-    };
-  },
   components: {
     ...TabComponents,
     ClassicUi,
@@ -28,8 +23,9 @@ export default {
   },
   data(){
     return {
+      inCursedCore: false,
       transform:5,
-      width:0,
+      width:"12.8rem",
       fade:1,
       sidebarSideSwitch:false
     }
@@ -65,6 +61,13 @@ export default {
   methods: {
     update() {
       this.inCursedCore = player.celestials.slabdrill.core.isActive;
+      this.sidebarSideSwitch = Theme.currentName() !== "S12" && player.options.sidebarSideSwitch && ui.newUI;
+      const end = GameEnd.endState;
+      const fading = end > 1 && end < END_STATE_MARKERS.CREDITS_START;
+      this.width = Theme.currentName() === "S12"
+        ? 0
+        : `${player.options.sidebarWidth * Math.clamp(fading ? 1 - (end - 2) : 1, 0, 1)}rem`;
+      this.fade = fading ? Math.clamp(1 - (end - 3), 0, 1) : 1;
     }
   }
 };

@@ -51,10 +51,6 @@ export default {
       return r;
     },
     symbol: () => GLYPH_SYMBOLS.effarig,
-    realityTitle() {
-      return player.options.naming.celestial ? `Enter Effarig's ${Effarig.RealityName}`
-       : "Enter Effarig's Reality"
-    },
     runButtonOuterClass() {
       return {
         "l-effarig-run-button": true,
@@ -103,7 +99,7 @@ export default {
     },
     startRun() {
       if (this.isDoomed) return;
-      Modal.celestials.show({ name: "Effarig's", number: 1, celestial: Effarig });
+      Modal.celestials.show({ name: "Effarig's", number: 1 });
     },
     createCursedGlyph() {
       Glyphs.giveCursedGlyph();
@@ -116,19 +112,15 @@ export default {
   <div class="l-teresa-celestial-tab">
     <CelestialQuoteHistory celestial="effarig" />
     <div class="l-effarig-shop-and-run">
-      <div class="l-effarig-relics-and-shop">
-        <div class="l-effarig-relics">
-        <div class="l-effarig-title"> 
-          You have <span :class="{'l-effarig-title--fixed': isInaccessible(relicShards) }">
-            {{ format(relicShards, 2, 0) }}
-          </span> {{ pluralize("Relic Shard", relicShards) }}
-        </div>
+      <div class="l-effarig-shop">
         <div class="c-effarig-relics">
+          You have {{ quantify("Relic Shard", relicShards, 2, 0) }}.
+          <br>
           <span v-if="relicShardRarityAlwaysMax">
-            The quality of new Glyphs is being increased by +{{ formatPercents(shardRarityBoost, 2) }}.
+            The rarity of new Glyphs is being increased by +{{ formatPercents(shardRarityBoost, 2) }}.
           </span>
           <span v-else>
-            Each new Glyph will have its quality increased
+            Each new Glyph will have its rarity increased
             <br>
             by a random value between +{{ formatPercents(0) }} and +{{ formatPercents(shardRarityBoost, 2) }}.
           </span>
@@ -160,43 +152,30 @@ export default {
           <br>
           increases Relic Shards gained.
         </div>
-      </div>
-      <div class="l-effarig-shop">
-        <div class="l-effarig-title">
-          <span class="c-effarig-shop--symbol">Ϙ</span>
-          Effarig's Glyph shop
-          <span class="c-effarig-shop--symbol">Ϙ</span>
-        </div>
-        <br>
-        <div class="l-effarig-shop--items__container">
-          <div class="l-effarig-shop--items">
-          <EffarigUnlockButton
+        <EffarigUnlockButton
           v-for="(unlock, i) in shopUnlocks"
           :key="i"
           :unlock="unlock"
-          />
-          <EffarigUnlockButton
+        />
+        <EffarigUnlockButton
+          v-if="!runUnlocked"
           :unlock="runUnlock"
-          />
-          <button
-            v-if="vIsFlipped"
-            class="c-effarig-shop-button c-effarig-shop-button--available"
-            @click="createCursedGlyph"
-          >
-          Get a Cursed Glyph... <br>
-          ( {{ curseness }} / 5 )
-          </button>
-          </div>
-        </div>
-      </div>
+        />
+        <button
+          v-if="vIsFlipped"
+          class="c-effarig-shop-button c-effarig-shop-button--available"
+          @click="createCursedGlyph"
+        >
+          Get a Cursed Glyph...
+        </button>
       </div>
       <div
         v-if="runUnlocked"
         class="l-effarig-run"
       >
-        <div class="c-effarig-run-description c-effarig-run-description__title">
+        <div class="c-effarig-run-description">
           <span :class="{ 'o-pelle-disabled': isDoomed }">
-            {{ realityTitle }}
+            Enter Effarig's Reality.
           </span>
         </div>
         <div
@@ -226,24 +205,5 @@ export default {
 <style scoped>
 .c-effarig-relic-description {
   width: 46rem;
-}
-
-.c-effarig-shop--symbol {
-  font-family: Typewriter;
-  margin: 0 1rem;
-}
-.l-effarig-title--fixed {
-  font-family: Typewriter;
-  font-weight: normal;
-}
-.c-effarig-run-description__title{
-  width: 100%;
-  font-size: 2rem;
-  font-weight: bold;
-  font-family: cambria;
-  border-top: solid 1px;
-  border-bottom: solid 1px;
-  border-image: linear-gradient(90deg, transparent, var(--color-effarig--base), transparent) 1;
-  background: linear-gradient(90deg, transparent, #d1373760, transparent);
 }
 </style>

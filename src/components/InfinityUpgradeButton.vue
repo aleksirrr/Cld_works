@@ -51,7 +51,7 @@ export default {
     classObject() {
       return {
         "o-infinity-upgrade-btn": true,
-        "o-infinity-upgrade-btn--bought": !this.isUseless && this.isBought && !this.isCharged,
+        "o-infinity-upgrade-btn--bought": !this.isUseless && this.isBought,
         "o-infinity-upgrade-btn--available": !this.isUseless && !this.isBought && this.canBeBought,
         "o-infinity-upgrade-btn--unavailable": !this.isUseless && !this.isBought && !this.canBeBought,
         "o-infinity-upgrade-btn--useless": this.isUseless,
@@ -106,7 +106,7 @@ export default {
     :class="classObject"
     @mouseenter="showingCharged = canBeCharged"
     @mouseleave="showingCharged = false"
-    @click="purchaseUpgrade()"
+    @click="upgrade.purchase()"
   >
     <span :class="{ 'o-pelle-disabled': isUseless }">
       <DescriptionDisplay

@@ -2,15 +2,13 @@
 import CostDisplay from "@/components/CostDisplay";
 import DescriptionDisplay from "@/components/DescriptionDisplay";
 import EffectDisplay from "@/components/EffectDisplay";
-import HintText from "@/components/HintText";
 
 export default {
   name: "PerkShopUpgradeButton",
   components: {
     DescriptionDisplay,
     EffectDisplay,
-    CostDisplay,
-    HintText
+    CostDisplay
   },
   props: {
     upgrade: {
@@ -73,10 +71,6 @@ export default {
       :class="classObject"
       @click="performActions"
     >
-    <HintText
-      type="perkShop"
-      class="l-hint-text--perk-shop"
-    >{{LevelDisplay}}</HintText>
       <DescriptionDisplay
         :config="upgrade.config"
         :length="70"
