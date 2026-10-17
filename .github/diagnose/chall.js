@@ -81,6 +81,7 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
   }).catch((e) => ({ evalError: e.message }));
   for (const k of (out.found || [])) { /* screenshots of each tab */ }
   const text = JSON.stringify(out, null, 1) + "\nERRORS(" + errs.length + "):\n" + [...new Set(errs)].slice(0, 12).join("\n");
+  console.log(`::error title=sweep ${process.env.PROBE_NAME}::${esc((out.sweep || ["(none)"]).join("\n").slice(0, 3800))}`);
   console.log(`::error title=chall ${process.env.PROBE_NAME}::${esc(text.slice(0, 14000))}`);
   await browser.close(); server.close();
 })().catch((e) => { console.log(`::error title=chall crashed::${esc(e.stack || e)}`); process.exit(1); });
