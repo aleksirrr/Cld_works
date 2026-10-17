@@ -3,14 +3,14 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <script>
-      // The game UI is laid out in rem and needs roughly 640 CSS px of width.
-      // On narrow phones render at 640 px and let the browser scale it down to fit.
+      // The game UI needs roughly 900 CSS px of width (it is laid out in rem).
+      // On narrower screens render at 900 px and let the browser scale it to fit.
       (function () {
         try {
-          var w = Math.min(screen.width, screen.height) < 600 || window.innerWidth < 600;
-          if (w) {
+          var vw = Math.min(screen.width, window.innerWidth || screen.width);
+          if (vw < 900) {
             document.querySelector('meta[name=viewport]').setAttribute(
-              'content', 'width=640, initial-scale=' + (Math.min(window.screen.width, window.innerWidth || 9999) / 640) + ', viewport-fit=cover');
+              'content', 'width=900, initial-scale=' + (vw / 900) + ', viewport-fit=cover');
           }
         } catch (e) {}
       })();
