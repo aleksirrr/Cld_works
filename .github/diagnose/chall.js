@@ -45,7 +45,8 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
       break;
     }
     const subs = [];
-    for (const tab of window.Tabs.all) for (const sub of (tab.subtabs || [])) { const k = String((sub.config || {}).key || (sub.config || {}).id || ""); if (/challenge/i.test(k)) subs.push([k, sub]); }
+    res.allTabs = window.Tabs.all.map((tb) => (tb.config.key || tb.config.id) + ":" + (tb.subtabs || []).map((x) => x.config.key || x.config.id).join("/"));
+    for (const tab of window.Tabs.all) if (/challenge/i.test(String(tab.config.key || tab.config.id))) for (const sub of (tab.subtabs || [])) subs.push([String(sub.config.key || sub.config.id), sub]);
     res.found = subs.map((x) => x[0]);
     for (const [k, sub] of subs) {
       await t("show " + k, () => sub.show(true));
