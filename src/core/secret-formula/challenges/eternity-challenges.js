@@ -5,6 +5,7 @@ const specialInfinityGlyphDisabledEffectText = () => (PelleRifts.chaos.milestone
 export const eternityChallenges = [
   {
     id: 1,
+    label: "Adhesive Permanency",
     description: () => {
       if (Alpha.isRunning) return "Time Dimensions are disabled. Double the Infinity Dimension purchase cap.";
       return "Time Dimensions are disabled.";
@@ -43,6 +44,7 @@ export const eternityChallenges = [
   },
   {
     id: 3,
+    label: "Dimensional Indolence",
     description: () => Slabdrill.isCursed
       ? `Your Antimatter Dimension is raised ${formatPow(0.5, 1, 1)}. Dimensional Sacrifice is disabled.`
       : `${player.universes.current === 2 ? "Matter" : "Antimatter"} Dimensions 5-8 don't produce anything. Dimensional Sacrifice is disabled.`,
@@ -85,6 +87,7 @@ export const eternityChallenges = [
   },
   {
     id: 5,
+    label: "Expeditious Calibration",
     description: () => Slabdrill.isCursed ? "Dimension Boost costs scaling is massively increased." :
       `${player.universes.current === 2 ? "Matter" : "Antimatter"} Galaxy cost increase scaling starts immediately (normally at ${formatInt(100)}
       Galaxies). Dimension Boost costs scaling is massively increased.`,
@@ -129,6 +132,7 @@ export const eternityChallenges = [
   },
   {
     id: 7,
+    label: "Refabricational Scheme",
     description: () =>
       `1st Time Dimensions produce 8th Infinity Dimensions${Slabdrill.isCursed ? ` and Infinity Dimensions are useless` :
       ` and 1st Infinity Dimensions produce 7th ${player.universes.current === 2 ? "Matter" : "Antimatter"} Dimensions`}. Tickspeed also directly applies to Infinity

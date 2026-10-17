@@ -66,6 +66,17 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
       };
       window.__sh = window.__sh || [];
     }
+    res.sweep = [];
+    for (const tab of window.Tabs.all) for (const sub of (tab.subtabs || [])) {
+      const k = String(tab.config.key || tab.config.id) + "/" + String(sub.config.key || sub.config.id);
+      try { try { Modal.hideAll(); } catch (e) {} ui.view.tab = tab.config.key || tab.config.id; ui.view.subtab = sub.config.key || sub.config.id; } catch (e) { res.sweep.push(k + " NAVERR"); continue; }
+      await sleep(700);
+      const el = document.querySelector(".c-game-tab");
+      const txt = el ? el.innerText : "(none)";
+      const bad = (txt.match(/undefined|NaN|\[object|null/g) || []).length;
+      const empty = el ? el.querySelectorAll("*").length : 0;
+      if (bad || !el || empty < 8) res.sweep.push(k + " bad=" + bad + " nodes=" + empty + " :: " + (bad ? txt.replace(/\s+/g, " ").split(/(?=undefined|NaN|\[object|null)/).slice(1, 3).map((x) => x.slice(0, 40)).join(" | ") : ""));
+    }
     return res;
   }).catch((e) => ({ evalError: e.message }));
   for (const k of (out.found || [])) { /* screenshots of each tab */ }
