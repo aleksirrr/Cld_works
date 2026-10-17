@@ -56,4 +56,4 @@ jobs:
         working-directory: ${{ env.TARGET }}
         env:
           PROBE_NAME: ${{ matrix.name }}
-        run: NODE_PATH=/tmp/probe/node_modules node ${{ github.workspace }}/tool/.github/diagnose/chall.js
+        run: NODE_PATH=/tmp/probe/node_modules node ${{ github.workspace }}/tool/.github/diagnose/bottom.js
