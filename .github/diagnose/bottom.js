@@ -15,7 +15,7 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
   const browser = await chromium.launch({ channel: "chrome", args: ["--no-sandbox"] });
   const ctx = await browser.newContext({ viewport: { width: 662, height: 1400 }, deviceScaleFactor: 1.5, isMobile: true, hasTouch: true,
     userAgent: "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36" });
-  const page = await ctx.newPage();
+  const page = await ctx.newPage(); const errs = []; page.on("pageerror", (e) => errs.push(String(e.message).slice(0, 200)));
   await page.goto("http://localhost:8080/", { waitUntil: "load" });
   await page.waitForTimeout(10000);
   try { await page.getByText("Start New Game", { exact: true }).first().click({ timeout: 4000 }); } catch (e) {}
@@ -47,6 +47,8 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
     report.push(tab + "/" + sub + " " + JSON.stringify(r));
     await shot(tab + "-" + sub);
   }
+  const live = await page.evaluate(async () => { const t = () => (document.querySelector('.c-game-ui') || {}).innerText || ''; const a = player.antimatter.toString(); await new Promise((r) => setTimeout(r, 1500)); const ev = []; return { am1: a, am2: player.antimatter.toString(), touch: GameUI.touchDevice, lastUpdateAt: Math.round(GameUI.lastUpdateAt) }; }).catch((e) => ({ err: e.message }));
+  report.push("LIVE " + JSON.stringify(live) + " ERRORS " + JSON.stringify(errs.slice(0, 5)));
   console.log(`::error title=bottom::${esc(report.join("\n").slice(0, 8000))}`);
   await browser.close(); server.close();
 })().catch((e) => { console.log(`::error title=bottom crashed::${esc(e.stack || e)}`); process.exit(1); });
