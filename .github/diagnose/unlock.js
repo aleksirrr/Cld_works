@@ -28,9 +28,9 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
     player.antimatter = Decimal.pow10(310); try { bigCrunchReset(); } catch (e) {}
     await sleep(1500);
     player.break = true;
-    player.infinityPoints = Decimal.pow10(60);
-    player.antimatter = Decimal.pow10(1200);
-    for (const k of ["thisInfinity", "thisEternity"]) { try { player.records[k].maxAM = Decimal.pow10(1200); } catch (e) {} }
+    player.infinityPoints = Decimal.pow10(9);
+    player.antimatter = Decimal.pow10(1102);
+    for (const k of ["thisInfinity", "thisEternity"]) { try { player.records[k].maxAM = Decimal.pow10(1102); } catch (e) {} }
     try { Modal.hideAll(); } catch (e) {}
     ui.view.tab = "dimensions"; ui.view.subtab = "antimatter";
     await sleep(1500);
@@ -39,7 +39,7 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
     const r = await page.evaluate(() => {
       const btns = [...document.querySelectorAll("button, .o-primary-btn, .o-infinity-button, .o-prestige-button")].filter((b) => /unlock|reach/i.test(b.innerText || ""));
       return { id1: (() => { try { return InfinityDimension(1).isUnlocked; } catch (e) { return "err"; } })(), canUnlock: (() => { try { const n = InfinityDimensions.next(); return [n.canUnlock, String(n.ipRequirement), String(n.amRequirement), n.hasIPUnlock]; } catch (e) { return "err " + e.message; } })(),
-        iw: innerWidth, btns: btns.map((b) => { const r = b.getBoundingClientRect(); return { t: b.innerText.replace(/\s+/g, " ").slice(0, 90), rect: [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)], cls: String(b.className).slice(0, 60), top: (() => { const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return e ? e.tagName + "." + String(e.className).slice(0, 40) : "none"; })() }; }) };
+        iw: innerWidth, btns: btns.map((b) => { const r = b.getBoundingClientRect(); return { t: b.innerText.replace(/\s+/g, " ").slice(0, 90), rect: [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)], cls: String(b.className).slice(0, 60), top: document.elementsFromPoint(r.left + r.width / 2, r.top + r.height / 2).slice(0, 6).map((e) => { const c = getComputedStyle(e); return e.tagName + "." + String(e.className).slice(0, 38) + "[" + c.position + "/z" + c.zIndex + "/pe:" + c.pointerEvents + "]"; }) }; }) };
     });
     out.push(label + " " + JSON.stringify(r));
     return r;
@@ -53,6 +53,6 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
   } catch (e) { out.push("tap failed " + e.message.slice(0, 120)); }
   await info("after-tap");
   console.log(`::error title=unlock::${esc(out.join("\n").slice(0, 7000) + "\nERR " + JSON.stringify([...new Set(errs)].slice(0, 4)))}`);
-  const buf = await page.screenshot({ type: "jpeg", quality: 30 }); if (buf.length < 60000) console.log(`::notice title=ushot::${buf.toString("base64")}`);
+  const buf = await page.screenshot({ type: "jpeg", quality: 25, clip: { x: 0, y: 0, width: 662, height: 700 } }); if (buf.length < 60000) console.log(`::notice title=ushot::${buf.toString("base64")}`);
   await browser.close(); server.close();
 })().catch((e) => { console.log(`::error title=unlock crashed::${esc(e.stack || e)}`); process.exit(1); });
