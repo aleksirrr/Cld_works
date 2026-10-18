@@ -14609,3 +14609,31 @@ input.o-automator-block-input {
     zoom: 0.68;
   }
 }
+
+/* Narrow (phone) layout: the three prestige header blocks are absolutely positioned side by side
+   (60rem centre block overlapping the 25rem side blocks), so they overlap and the centre block eats clicks
+   meant for the Infinity / Eternity buttons. Stack them in a column instead. */
+@media (max-width: 1100px) {
+  .c-prestige-info-blocks {
+    flex-direction: column !important;
+    align-items: center !important;
+    height: auto !important;
+    gap: 1rem;
+  }
+  .c-prestige-info-blocks > .l-game-header__eternity,
+  .c-prestige-info-blocks > .l-game-header__center,
+  .c-prestige-info-blocks > .l-game-header__infinity {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    max-width: 60rem;
+  }
+  .c-prestige-info-blocks > .l-game-header__center { order: 1; }
+  .c-prestige-info-blocks > .l-game-header__infinity { order: 2; }
+  .c-prestige-info-blocks > .l-game-header__eternity { order: 3; }
+  .c-prestige-info-blocks .c-prestige-button-container {
+    height: auto !important;
+    min-height: 0;
+  }
+}
