@@ -128,12 +128,16 @@ const ReactivityComplainer = {
   }
 };
 
+const TOUCH_MIN_UI_INTERVAL = 90;
+
 export const GameUI = {
   notify,
   events: [],
   flushPromise: undefined,
   initialized: false,
   globalClickListener: null,
+  lastUpdateAt: 0,
+  trailingUpdate: undefined,
   touchDevice: ("ontouchstart" in window ||
     window.navigator.maxTouchPoints > 0 || window.navigator.msMaxTouchPoints > 0 ||
     (window.DocumentTouch && document instanceof DocumentTouch)),
@@ -160,7 +164,16 @@ export const GameUI = {
     for (const event of this.events) {
       EventHub.ui.dispatch(event[0], event[1]);
     }
-    EventHub.ui.dispatch(GAME_EVENT.UPDATE);
+    // Phones: re-run every component's update() at most every ~90 ms (the game simulation itself is unaffected).
+    const now = performance.now();
+    if (this.touchDevice && now - this.lastUpdateAt < TOUCH_MIN_UI_INTERVAL) {
+      if (!this.trailingUpdate) {
+        this.trailingUpdate = setTimeout(() => { this.trailingUpdate = undefined; this.dispatch(GAME_EVENT.UPDATE); }, TOUCH_MIN_UI_INTERVAL);
+      }
+    } else {
+      this.lastUpdateAt = now;
+      EventHub.ui.dispatch(GAME_EVENT.UPDATE);
+    }
     if (DEV) {
       ReactivityComplainer.complain();
       if (PerformanceStats.isOn && PerformanceStats.currentBlocks.length > 0) {

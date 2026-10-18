@@ -19,18 +19,26 @@
       // Auto-fit: on narrow screens, shrink whichever tab is open so that it never
       // exceeds the available width (works for any tab, including future additions).
       // Reset + measure + set happen in one task, so there is no visible flicker.
-      setInterval(function () {
+      var fitKey = '', fitTick = 0;
+      function fitTab() {
         try {
           var el = document.querySelector('.c-game-tab');
           if (!el) return;
+          if (window.innerWidth >= 1100) { if (el.style.zoom) el.style.zoom = ''; return; }
+          // Re-measure only when the tab/size changed, plus every ~4 s in case content grew (not every tick).
+          var key = (window.ui && ui.view ? ui.view.tab + '/' + ui.view.subtab : '') + '|' + window.innerWidth;
+          fitTick++;
+          if (key === fitKey && fitTick % 10 !== 0) return;
+          fitKey = key;
           el.style.zoom = '';
-          if (window.innerWidth >= 1100) return;
           var sb = document.querySelector('.c-modern-sidebar');
           var avail = document.documentElement.clientWidth - (sb ? sb.offsetWidth : 0) - 8;
           var need = Math.max(el.scrollWidth, el.offsetWidth);
           if (need > avail) el.style.zoom = Math.max(0.4, avail / need);
         } catch (e) {}
-      }, 400);
+      }
+      setInterval(fitTab, 400);
+      setTimeout(fitTab, 100);
     </script>
     <script>
       // Touch hotkey bar: 6 configurable big buttons + a gear button to configure them.
@@ -194,7 +202,7 @@
         else build();
       })();
     </script>
-    <style>html,body{-webkit-text-size-adjust:none;text-size-adjust:none;overflow-x:hidden}</style>
+    <style>html,body{-webkit-text-size-adjust:none;text-size-adjust:none;overflow-x:hidden}*{touch-action:manipulation}</style>
   <meta charset="utf-8">
   <title>Antimatter Dimensions: Endgame + Legendary</title>
   <link rel="icon" type="image/png" href="icon.png">
