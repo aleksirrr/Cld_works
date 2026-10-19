@@ -83,7 +83,7 @@ export default {
       if (id === "C1") return "";
       let type = id.includes("IC") ? player.challenge.infinity.bestTimes.slice(0) : player.challenge.normal.bestTimes.slice(0)
       let time = type[id.replace(/C|IC/,"") - (id.includes("IC") ? 1 : 2)]
-      return time < Number.MAX_VALUE ? `${timeDisplayShort(time)}` : "??:??:??";
+      return new Decimal(time).lt(Number.MAX_VALUE) ? `${timeDisplayShort(time)}` : "??:??:??";
     }
   }
 };
