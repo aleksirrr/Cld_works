@@ -457,7 +457,7 @@ export const ReplicantiUpgrade = {
     }
 
     get progress() {
-      return this.value / this.cap;
+      return new Decimal(this.value).div(this.cap).toNumber();
     }
     get autobuyerMilestone() {
       return EternityMilestone.autobuyerReplicantiChance;
@@ -539,7 +539,7 @@ export const ReplicantiUpgrade = {
     }
 
     get progress() {
-      return Math.log10(1000/this.value)/Math.log10(1000/this.cap)
+      return Decimal.div(1000, this.value).log10().toNumber() / Decimal.div(1000, this.cap).log10().toNumber();
     }
 
     get autobuyerMilestone() {
@@ -634,8 +634,11 @@ export const ReplicantiUpgrade = {
     }
 
     get progress() {
-      if (this.distantRGStart>=this.value) return this.value/this.distantRGStart
-      if (this.remoteRGStart>=this.value) return (this.value-this.distantRGStart)/(this.remoteRGStart-this.distantRGStart)
+      const value = new Decimal(this.value);
+      const distant = new Decimal(this.distantRGStart);
+      const remote = new Decimal(this.remoteRGStart);
+      if (distant.gte(value)) return value.div(distant).toNumber();
+      if (remote.gte(value)) return value.sub(distant).div(remote.sub(distant)).toNumber();
       return 0;
     }
     get extra() {

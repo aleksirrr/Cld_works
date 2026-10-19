@@ -62,7 +62,9 @@ export class ReplicantiUpgradeButtonSetup {
     this.upgrade = upgrade;
     this.formatDescription = formatDescription;
     this.formatCost = formatCost;
-    this.displayProgress = displayProgress;
+    // Legendary passes a 4th argument; Endgame's setups don't, so fall back to a plain percentage bar.
+    this.displayProgress = displayProgress ||
+      (progress => `${Math.min(1, Math.max(0, Number(progress) || 0)) * 100}%`);
   }
 }
 </script>
