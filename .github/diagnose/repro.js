@@ -8,6 +8,19 @@ const server = http.createServer((req, res) => {
   if (!f.startsWith(dist) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.statusCode = 404; return res.end("nf"); }
   res.setHeader("content-type", types[path.extname(f)] || "application/octet-stream"); fs.createReadStream(f).pipe(res);
 });
+
+let SMC = null; try { SMC = require("source-map").SourceMapConsumer; } catch (e) {}
+async function where(stack) {
+  if (!SMC) return "(no source-map)";
+  const frames = [...String(stack).matchAll(/js\/(app\.[0-9a-f]+\.js):(\d+):(\d+)/g)].slice(0, 5); const outl = [];
+  for (const [, file, ln, col] of frames) {
+    const mp = path.join(dist, "js", file + ".map"); if (!fs.existsSync(mp)) continue;
+    const c = await new SMC(JSON.parse(fs.readFileSync(mp, "utf8"))); const o = c.originalPositionFor({ line: +ln, column: +col });
+    if (o && o.source) { let sl = ""; try { sl = (c.sourceContentFor(o.source, true) || "").split("\n")[o.line - 1].trim().slice(0, 110); } catch (e) {} outl.push(String(o.source).replace(/^webpack:\/\/[^/]*\//, "") + ":" + o.line + " :: " + sl); }
+    c.destroy && c.destroy();
+  }
+  return outl.join(" <- ");
+}
 const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
 (async () => {
   await new Promise((r) => server.listen(8080, r));
@@ -15,7 +28,7 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
   const ctx = await browser.newContext({ viewport: { width: 662, height: 1400 }, isMobile: true, hasTouch: true,
     userAgent: "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36" });
   const page = await ctx.newPage(); const errs = [];
-  page.on("pageerror", (e) => errs.push(String(e.stack || e.message).slice(0, 300)));
+  page.on("pageerror", (e) => errs.push(String(e.stack || e.message).slice(0, 1500)));
   await page.goto("http://localhost:8080/", { waitUntil: "load" });
   await page.waitForTimeout(10000);
   try { await page.getByText("Start New Game", { exact: true }).first().click({ timeout: 4000 }); } catch (e) {}
@@ -60,6 +73,7 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
     if (shop) { const q = shop.getBoundingClientRect(); const e = document.elementFromPoint(q.left + q.width / 2, q.bottom - 10); res.push("top at shop bottom: " + (e ? e.tagName + "#" + e.id + "." + String(e.className).slice(0, 40) : "none")); }
     return res;
   }).catch((e) => ["evalError " + e.message]);
-  console.log(`::error title=repro::${esc(out.join("\n").slice(0, 6000) + "\nERR " + JSON.stringify([...new Set(errs)].slice(0, 5)))}`);
+  const uniq = [...new Set(errs)].slice(0, 4); const mapped = []; for (const e of uniq) mapped.push(await where(e));
+  console.log(`::error title=repro::${esc(out.join("\n").slice(0, 4000) + "\nERRWHERE\n" + mapped.join("\n"))}`);
   await browser.close(); server.close();
 })().catch((e) => { console.log(`::error title=repro crashed::${esc(e.stack || e)}`); process.exit(1); });
