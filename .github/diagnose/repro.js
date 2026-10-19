@@ -71,9 +71,10 @@ const esc = (s) => String(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(
     const r = (e) => { if (!e) return null; const b = e.getBoundingClientRect(); return [Math.round(b.top), Math.round(b.bottom), Math.round(b.left), Math.round(b.right)]; };
     res.push("TT shop " + JSON.stringify(r(shop)) + " bar " + JSON.stringify(r(bar)) + " innerH " + innerHeight + " buyBtns " + document.querySelectorAll(".c-tt-buy-button").length);
     if (shop) { const q = shop.getBoundingClientRect(); const e = document.elementFromPoint(q.left + q.width / 2, q.bottom - 10); res.push("top at shop bottom: " + (e ? e.tagName + "#" + e.id + "." + String(e.className).slice(0, 40) : "none")); }
+    for (const tab of window.Tabs.all) for (const sub of (tab.subtabs || [])) { try { await go(tab.config.key || tab.config.id, sub.config.key || sub.config.id); } catch (e) { res.push("nav " + e.message); } await sleep(250); }
     return res;
   }).catch((e) => ["evalError " + e.message]);
-  const uniq = [...new Set(errs)].slice(0, 4); const mapped = []; for (const e of uniq) mapped.push(await where(e));
-  console.log(`::error title=repro::${esc(out.join("\n").slice(0, 4000) + "\nERRWHERE\n" + mapped.join("\n"))}`);
+  const uniq = [...new Set(errs)].slice(0, 12); const mapped = []; for (const e of uniq) mapped.push((String(e).split("\n")[0]).slice(0, 90) + " @ " + await where(e));
+  console.log(`::error title=repro::${esc(out.join("\n").slice(0, 1500) + "\nERRWHERE\n" + mapped.join("\n"))}`);
   await browser.close(); server.close();
 })().catch((e) => { console.log(`::error title=repro crashed::${esc(e.stack || e)}`); process.exit(1); });

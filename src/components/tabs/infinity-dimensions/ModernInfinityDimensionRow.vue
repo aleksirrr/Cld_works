@@ -107,7 +107,7 @@ export default {
       this.cost.copyFrom(dimension.cost);
       this.isAvailableForPurchase = dimension.isAvailableForPurchase;
       this.isCapped = dimension.isCapped;
-      this.percentage = `${dimension.purchases / dimension.purchaseCap * 100}%`
+      this.percentage = `${Math.min(100, Math.max(0, new Decimal(dimension.purchases).div(dimension.purchaseCap).times(100).toNumber() || 0))}%`
       if (this.isCapped) {
         this.capIP.copyFrom(dimension.hardcapIPAmount);
         this.hardcap.copyFrom(dimension.purchaseCap);
