@@ -367,7 +367,7 @@ class InfinityDimensionState extends DimensionState {
   }
 
   // Only ever called from manual actions
-  buySingle() {
+  buySingle(playSound = false) {
     if (Laitela.continuumActive && Alpha.currentStage >= 9 && !player.disablePostReality) return;
     if (!this.isUnlocked) return this.unlock();
     if (!this.isAvailableForPurchase) return false;
@@ -399,7 +399,7 @@ class InfinityDimensionState extends DimensionState {
     return true;
   }
 
-  buyMax(auto) {
+  buyMax(auto, playSound = false) {
     if (Laitela.continuumActive && Alpha.currentStage >= 9 && !player.disablePostReality) return;
     if (!this.isAvailableForPurchase) return false;
     if (ImaginaryUpgrade(15).isLockingMechanics) {

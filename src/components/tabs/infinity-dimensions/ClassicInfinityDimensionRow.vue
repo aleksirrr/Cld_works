@@ -124,11 +124,11 @@ export default {
     },
     buySingleInfinityDimension() {
       if (this.isContinuumActive) return;
-      InfinityDimension(this.tier).buySingle();
+      InfinityDimension(this.tier).buySingle(true);
     },
     buyMaxInfinityDimension() {
       if (this.isContinuumActive) return;
-      InfinityDimension(this.tier).buyMax(false);
+      InfinityDimension(this.tier).buyMax(false, true);
     },
     buttonClass() {
       return {
